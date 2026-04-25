@@ -1,0 +1,3362 @@
+openapi: 3.0.4
+info:
+  title: Documentacion API V2
+  description: |-
+    Contífico usa una clave de acceso para sus servicios (API Key), para obtenerla debes tener una cuenta en contífico y solicitarla por soporte al cliente. 
+    Esta clave deberá ser agregada y enviada como parámetro en el header **AUTHORIZATION** en cada servicio que se consuma. Un ejemplo:
+    >
+    > Authorization: SECRETKEY
+    >
+    **SECRETKEY** debe ser reemplazado con el **API_KEY** proporcionado por contifico.
+
+  version: v2
+servers:
+  - url: https://api.contifico.com/sistema
+tags:
+  - name: Asiento
+  - name: Persona
+  - name: Categoria
+  - name: Bodega
+  - name: Producto
+  - name: Documento
+  - name: Cobros
+  - name: Cuentas Bancarias
+  - name: Formas de Pago
+  - name: Parametros
+  - name: Movimientos de Inventario
+  - name: Unidad
+
+paths:
+  /api/v2/contabilidad/asiento/:
+    get:
+      tags:
+        - Asiento
+      description: |-
+        Devuelve un listado de asientos con su respectivo detalle.
+
+        > GET https://api.contifico.com/sistema/api/v2/contabilidad/asiento/
+        
+
+        |    Parámetro    |   Tipo   | Longitud |                          Descripción                          |
+        |-----------------|----------|----------|---------------------------------------------------------------|
+        |     detalles    |  objeto  | 	  -     | Cuentas involucradas                                          |
+        |    cuenta_id    |  varchar |	  16  	| Identificador de la cuenta que se va a utilizar en el asiento |
+        | centro_costo_id |  varchar |	  16 	  | Identificador del centro de costo                             |
+        |      tipo 	    |   char   |    1 	  | Tipo de detalle D:Debe H:Haber                                |
+        |      valor    	|  decimal | 	  12 	  | Valor del detalle, (10 int, 2 decimal)max.                    |
+        |      glosa      |	longtext | 	    	  | Glosa del asiento                                             |
+        |      fecha      |	  char   |    10    |	Fecha de la transacción formato "dd/mm/yyyy"                  |
+        |       id 	      |   char	 |    16 	  | Identificador del asiento consultado                          |
+
+      operationId: Consulta
+      parameters:
+        - name: page
+          in: query
+          description: Número de página
+          required: false
+          schema:
+            type: string
+        - in: query 
+          name: fecha_inicial
+          description: Fecha inicial con el formato DD/MM/AAAA (donde DD es el día, MM es el mes y AAAA es el año).
+          schema:
+            type: date
+        - in: query 
+          name: fecha_final
+          description: Fecha final con el formato DD/MM/AAAA (donde DD es el día, MM es el mes y AAAA es el año).
+          schema:
+            type: date
+        - in: query 
+          name: centro_costo
+          description: Filtro de centro de costo (id_integracion).
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Asiento"
+
+  /api/v2/contabilidad/asiento/{id}:
+    get:
+      tags:
+        - Asiento
+      description: |-
+        Devuelve un asiento con su respectivo detalle y por el id solicitado.
+
+        > GET https://api.contifico.com/sistema/api/v2/contabilidad/asiento/{id_integracion}
+        
+
+        |    Parámetro    |   Tipo   | Longitud |                          Descripción                          |
+        |-----------------|----------|----------|---------------------------------------------------------------|
+        |     detalles    |  objeto  | 	  -     | Cuentas involucradas                                          |
+        |    cuenta_id    |  varchar |	  16  	| Identificador de la cuenta que se va a utilizar en el asiento |
+        | centro_costo_id |  varchar |	  16 	  | Identificador del centro de costo                             |
+        |      tipo 	    |   char   |    1 	  | Tipo de detalle D:Debe H:Haber                                |
+        |      valor    	|  decimal | 	  12 	  | Valor del detalle, (10 int, 2 decimal)max.                    |
+        |      glosa      |	longtext | 	    	  | Glosa del asiento                                             |
+        |      fecha      |	  char   |    10    |	Fecha de la transacción formato "dd/mm/yyyy"                  |
+        |       id 	      |   char	 |    16 	  | Identificador del asiento consultado                          |
+
+      operationId: Obtener un asiento
+      parameters:
+        - name: id_integracion
+          in: path
+          description: id_integracion del asiento
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Asiento"
+
+  /api/v2/persona/:
+    get:
+      tags:
+        - Persona
+      description: |-
+        > GET https://api.contifico.com/sistema/api/v2/persona/
+
+        Devuelve un listado con todas las personas creadas en el sistema
+
+
+        |       Parámetro       |  Tipo   | Longitud |	                      Descripción                          |
+        |-----------------------|---------|----------|-------------------------------------------------------------|
+        |         id 	          | varchar |	    16   | Identificador de la cuenta en el sistema.                   |
+        |  adicionales_cliente  | varchar |	   300 	 | Informacion adicional del cliente.                          |
+        |  personaasociada_id   | varchar |	    16 	 | Identificador de la persona asociada a la persona actual.   |
+        |       direccion       | varchar |    300   | Direccion de la persona.                                    |
+        |       es_vendedor     | boolean |   	 1   | Rol vendedor de la persona.                                 |
+        |          tipo 	      | varchar |      1 	 | Tipo de persona (N:Natural J:Juridica I:SinId P:Placa).     |
+        |     razon_social  	  | varchar |	   300   | Razon social de la persona.                                 |
+        |    nombre_comercial   | varchar |	   300   | Nombre comercial de la persona.                             |
+        |    es_corporativo     | boolean |	    1 	 | Rol corporativo de la persona.                              |
+        | porcentaje_descuento  | decimal |	    2 	 | Descuento de tipo cliente (2 decimales Max).                |
+        |         origen        | varchar |	    3  	 | Tipo de POS desde el cual se registro.                      |
+        |          ruc          | varchar |	    13   | Ruc de la persona.                                          |
+        |    banco_codigo_id    | varchar |	   16 	 | Codigo de banco asociado a la persona.                      |
+        |         email         | varchar |    50  	 | Correo de la persona.                                       |
+        |       es_cliente   	  | boolean |	    1    | Rol vendedor de la persona.                                 |
+        | adicionales_proveedor |	varchar |	   300 	 | Informacion adicional del proveedor.                        |
+        |     numero_tarjeta    |	varchar |	   200 	 | Numero de tarjeta de la persona.                            |
+        |      es_extranjero    |	boolean |	    1 	 | Verificador de personas extranjeras.                        |
+        |       es_empleado     | boolean |	    1 	 | Rol empleado de la persona.                                 |
+        |       es_proveedor 	  | boolean |	    1 	 | Rol proveedor de la persona.                                |
+        |       aplicar_cupo    |	boolean |	    1 	 | Verificador si la persona tiene un cupo maximo como cliente.|
+        |       telefonos      	| varchar |	   50 	 | Telefono de la persona.                                     |
+        |      tipo_cuenta 	    | varchar |	    2 	 | tipo de la cuenta contable asociada.                        |
+        |          placa      	| varchar |	   13 	 | Placa de la persona si es de tipo placa.                    |
+        |         cedula 	      | varchar |	   10 	 | Cedula de la persona.                                       |
+        |       id_categoria 	  | varchar |	   16 	 | Identificador de la categoria persona en el sistema.        |
+        |    categoria_nombre   |	varchar |	   40 	 | Nombre de la categoria asociada a la persona.               |
+        |   fecha_modificacion  |	  date  |	    -    | Fecha de modificación asociada a la persona.                |
+        |         sueldo        |	decimal |	   10 	 | Sueldo asociado a la persona. (8 int, 2 decimal)max         |
+        |      dias_credito     |	varchar |	   40 	 | Días de crédito asociado a la persona.                      |
+        |      cupo_credito     |	varchar |	   40 	 | Cupo de crédito asociado a la persona.                      |
+        |    vendedor_asignado  |	  obj   |	    -    | Vendedor asignado a la persona.                             |
+
+      operationId: Consulta
+      parameters:
+        - in: query
+          name: search
+          description: Busca personas en los campos 'razon_social', 'nombre_comercial', 'cedula' y 'ruc' que coincidan con el valor enviado.
+          schema:
+            type: string
+        - in: query 
+          name: modificados_desde_fecha
+          description: Busca personas con una fecha de modificación igual y mayor de la fecha enviada.
+            Utilice el formato "AAAA-MM-DD"
+          schema:
+            type: date
+        - in: query 
+          name: estado
+          description: Busca personas según el estado:A=activo, I=inactivo.
+          schema:
+            type: string
+        - in: query 
+          name: fecha_inicial
+          description: Filtro de fecha inicial. Debe utilizar el formato AAAA-MM-DD.
+          schema:
+            type: date
+        - in: query 
+          name: fecha_final
+          description: Filtro de fecha final. Debe utilizar el formato AAAA-MM-DD.
+          schema:
+            type: date
+        - in: query 
+          name: es_proveedor
+          description: Filtro es_proveedor. Debe utilizar 1=true, 0=false.
+          schema:
+            type: boolean
+        - in: query 
+          name: es_cliente
+          description: Filtro es_ cliente. Debe utilizar 1=true, 0=false.
+          schema:
+            type: boolean
+        - in: query 
+          name: tipo
+          description: Consultar personas por tipo (N=Natural, J=Juridico, I=Sin RUC o cédula, P=Placa)
+          schema:
+            type: string
+        - in: query 
+          name: page
+          description: Consulta personas con el page indicado.
+          schema:
+            type: string
+        - in: query 
+          name: categoria_id
+          description: Identificador de la categoría persona.
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Persona"
+        '500':
+          description: Error en el servidor
+    post:
+      tags: 
+        - Persona
+      description: |-
+        Para crear una persona se debe de hacer uso de la url:
+
+        > POST https://api.contifico.com/sistema/api/v2/persona/?pos={api_token}
+
+
+        |      Parámetro      |	  Tipo  |	Longitud |	                           Descripción                                |	Obligatorio |
+        |---------------------|---------|----------|------------------------------------------------------------------------|-------------|
+        | adicionales_cliente |	varchar |	   300   |	Informacion adicional del cliente (acepta null)                       |	     No     |
+        | personaasociada_id  |	varchar |	    16   |	Identificador de la persona asociada a la persona actual (acepta null)|	     No     |
+        |      direccion      |	varchar |	   300   |	Direccion de la persona                                               |	     No     |
+        |      es_vendedor    | boolean |	    1    |	Rol vendedor de la persona                                            |	     No     |
+        |         tipo        |	varchar |	    1    |	Tipo de persona (N:Natural J:Juridica I:SinId P:Placa)                |	     Si     |
+        |     razon_social    |	varchar |	   300   |	Razon social de la persona                                            |	     Si     |
+        |   nombre_comercial  |	varchar |	   300   |	Nombre comercial de la persona                                        |	  Opcional  |
+        |   es_corporativo    |	boolean |	    1    |	Rol corporativo de la persona                                         |	     No     |
+        | porcentaje_descuento| decimal |	    2    | 	Descuento de tipo cliente                                             |	     No     |
+        |        origen       |	varchar |	    3    |	Tipo de POS desde el cual se registro (acepta null)                   |	     No     |
+        |          ruc        |	varchar |	   13    |	Ruc de la persona                                                     |	  Opcional  |
+        |   banco_codigo_id   |	varchar |	   16    |	Codigo de banco asociado a la persona (acepta null)                   |	     No     |
+        |         email       |	varchar |	   50    |  Correo de la persona                                                  |	     No     |
+        |      es_cliente     |	boolean |	    1    |	Rol vendedor de la persona                                            |	     Si     |
+        |adicionales_proveedor|	varchar |	   300   |	Informacion adicional del proveedor                                   |	     No     |
+        |   numero_tarjeta    |	varchar |	   200   |	Numero de tarjeta de la persona                                       |	     No     |
+        |    es_extranjero    |	boolean |	    1    |	Verificador de personas extranjeras                                   |	     No     |
+        |      es_empleado    |	boolean |	    1    |	Rol empleado de la persona                                            | 	   No     |
+        |     es_proveedor    |	boolean |	    1    |	Rol proveedor de la persona                                           |	     Si     |
+        |     aplicar_cupo    |	boolean |	    1    |	Verificador si la persona tiene un cupo maximo como cliente           |	     No     |
+        |       telefonos     |	varchar |	   50    |	Telefono de la persona 	                                              |      No     |
+        |      tipo_cuenta    |	varchar |	    2    |	tipo de la cuenta contable asociada                                   |	     No     |
+        |         placa       |	varchar |	   13    |	Placa de la persona si es de tipo placa                               |	  Opcional  |
+        |        cedula       |	varchar |	   10    |	Cédula de la persona                                                  |	     Si     |
+
+
+        | Parámetro |	  Tipo  | Longitud |    	    Descripción        |
+        |-----------|---------|----------|-----------------------------|
+        |   token   |	varchar |	   16    | Token enviado por Contifico.|
+
+        NOTA: Se debe de enviar en true al menos uno de los campos: “es_proveedor” o “es_cliente”.
+        Los campos opcionales son obligatorios dependiendo del tipo de persona que se cree, 
+        personas Juridicas requieren el envío del campo ruc.
+
+      operationId: Creación
+      parameters:
+        - in: query
+          name: pos
+          description: Api Token del POS
+          required: true
+          schema:
+              type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Persona"
+            examples:
+              natural:
+                $ref: '#/components/examples/natural'
+              naturalconRUC:
+                $ref: '#/components/examples/naturalconRUC'
+              juridica:
+                $ref: '#/components/examples/juridica'
+              juridicaconCedula:
+                $ref: '#/components/examples/juridicaconCedula'
+              extranjeroNatural:
+                $ref: '#/components/examples/extranjeroNatural'
+              extranjeroJuridico:
+                $ref: '#/components/examples/extranjeroJuridico'
+              sinID:
+                $ref: '#/components/examples/sinID'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Persona"
+        '500':
+          description: Error en el servidor
+
+  /api/v2/persona/{id_integracion}/:
+    get:
+      tags:
+        - Persona
+      description: |-
+        > GET https://api.contifico.com/sistema/api/v2/persona/{id_integracion}/
+
+        Devuelve una persona con el id solicitado.
+
+
+        |       Parámetro       |  Tipo   | Longitud |	                      Descripción                          |
+        |-----------------------|---------|----------|-------------------------------------------------------------|
+        |         id 	          | varchar |	    16   | Identificador de la cuenta en el sistema.                   |
+        |  adicionales_cliente  | varchar |	   300 	 | Informacion adicional del cliente.                          |
+        |  personaasociada_id   | varchar |	    16 	 | Identificador de la persona asociada a la persona actual.   |
+        |       direccion       | varchar |    300   | Direccion de la persona.                                    |
+        |       es_vendedor     | boolean |   	 1   | Rol vendedor de la persona.                                 |
+        |          tipo 	      | varchar |      1 	 | Tipo de persona (N:Natural J:Juridica I:SinId P:Placa).     |
+        |     razon_social  	  | varchar |	   300   | Razon social de la persona.                                 |
+        |    nombre_comercial   | varchar |	   300   | Nombre comercial de la persona.                             |
+        |    es_corporativo     | boolean |	    1 	 | Rol corporativo de la persona.                              |
+        | porcentaje_descuento  | decimal |	    2 	 | Descuento de tipo cliente (2 decimales Max).                |
+        |         origen        | varchar |	    3  	 | Tipo de POS desde el cual se registro.                      |
+        |          ruc          | varchar |	    13   | Ruc de la persona.                                          |
+        |    banco_codigo_id    | varchar |	   16 	 | Codigo de banco asociado a la persona.                      |
+        |         email         | varchar |    50  	 | Correo de la persona.                                       |
+        |       es_cliente   	  | boolean |	    1    | Rol vendedor de la persona.                                 |
+        | adicionales_proveedor |	varchar |	   300 	 | Informacion adicional del proveedor.                        |
+        |     numero_tarjeta    |	varchar |	   200 	 | Numero de tarjeta de la persona.                            |
+        |      es_extranjero    |	boolean |	    1 	 | Verificador de personas extranjeras.                        |
+        |       es_empleado     | boolean |	    1 	 | Rol empleado de la persona.                                 |
+        |       es_proveedor 	  | boolean |	    1 	 | Rol proveedor de la persona.                                |
+        |       aplicar_cupo    |	boolean |	    1 	 | Verificador si la persona tiene un cupo maximo como cliente.|
+        |       telefonos      	| varchar |	   50 	 | Telefono de la persona.                                     |
+        |      tipo_cuenta 	    | varchar |	    2 	 | tipo de la cuenta contable asociada.                        |
+        |          placa      	| varchar |	   13 	 | Placa de la persona si es de tipo placa.                    |
+        |         cedula 	      | varchar |	   10 	 | Cedula de la persona.                                       |
+        |       id_categoria 	  | varchar |	   16 	 | Identificador de la categoria persona en el sistema.        |
+        |    categoria_nombre   |	varchar |	   40 	 | Nombre de la categoria asociada a la persona.               |
+        |   fecha_modificacion  |	  date  |	    -    | Fecha de modificación asociada a la persona.                |
+        |         sueldo        |	decimal |	   10 	 | Sueldo asociado a la persona. (8 int, 2 decimal)max         |
+        |      dias_credito     |	varchar |	   40 	 | Días de crédito asociado a la persona.                      |
+        |      cupo_credito     |	varchar |	   40 	 | Cupo de crédito asociado a la persona.                      |
+        |    vendedor_asignado  |	  obj   |	    -    | Vendedor asignado a la persona.                             |
+
+      operationId: Obtener una persona
+      parameters:
+        - in: path
+          name: id_integracion
+          description: id_integracion Persona
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Persona"           
+        '500':
+          description: Error en el servidor
+          
+    put:
+      tags: 
+        - Persona
+      description: |-
+        Para modificar una persona se debe de hacer uso de la url:
+
+        > PUT https://api.contifico.com/sistema/api/v2/persona/{id}/?pos={api_token}
+
+
+        |      Parámetro      |	  Tipo  |	Longitud |	                           Descripción                                |	Obligatorio |
+        |---------------------|---------|----------|------------------------------------------------------------------------|-------------|
+        | adicionales_cliente |	varchar |	   300   |	Informacion adicional del cliente (acepta null)                       |	     No     |
+        | personaasociada_id  |	varchar |	    16   |	Identificador de la persona asociada a la persona actual (acepta null)|	     No     |
+        |      direccion      |	varchar |	   300   |	Direccion de la persona                                               |	     No     |
+        |      es_vendedor    | boolean |	    1    |	Rol vendedor de la persona                                            |	     No     |
+        |         tipo        |	varchar |	    1    |	Tipo de persona (N:Natural J:Juridica I:SinId P:Placa)                |	     Si     |
+        |     razon_social    |	varchar |	   300   |	Razon social de la persona                                            |	     Si     |
+        |   nombre_comercial  |	varchar |	   300   |	Nombre comercial de la persona                                        |	  Opcional  |
+        |   es_corporativo    |	boolean |	    1    |	Rol corporativo de la persona                                         |	     No     |
+        | porcentaje_descuento| decimal |	    2    | 	Descuento de tipo cliente                                             |	     No     |
+        |          ruc        |	varchar |	   13    |	Ruc de la persona                                                     |	  Opcional  |
+        |   banco_codigo_id   |	varchar |	   16    |	Codigo de banco asociado a la persona (acepta null)                   |	     No     |
+        |         email       |	varchar |	   50    |  Correo de la persona                                                  |	     No     |
+        |      es_cliente     |	boolean |	    1    |	Rol vendedor de la persona                                            |	     Si     |
+        |adicionales_proveedor|	varchar |	   300   |	Informacion adicional del proveedor                                   |	     No     |
+        |   numero_tarjeta    |	varchar |	   200   |	Numero de tarjeta de la persona                                       |	     No     |
+        |    es_extranjero    |	boolean |	    1    |	Verificador de personas extranjeras                                   |	     No     |
+        |      es_empleado    |	boolean |	    1    |	Rol empleado de la persona                                            | 	   No     |
+        |     es_proveedor    |	boolean |	    1    |	Rol proveedor de la persona                                           |	     Si     |
+        |     aplicar_cupo    |	boolean |	    1    |	Verificador si la persona tiene un cupo maximo como cliente           |	     No     |
+        |       telefonos     |	varchar |	   50    |	Telefono de la persona 	                                              |      No     |
+        |      tipo_cuenta    |	varchar |	    2    |	tipo de la cuenta contable asociada                                   |	     No     |
+        |         placa       |	varchar |	   13    |	Placa de la persona si es de tipo placa                               |	  Opcional  |
+        |        cedula       |	varchar |	   10    |	Cédula de la persona                                                  |	     Si     |
+
+
+        | Parámetro |	  Tipo  | Longitud |    	    Descripción        |
+        |-----------|---------|----------|-----------------------------|
+        |   token   |	varchar |	   16    | Token enviado por Contifico.|
+
+      operationId: Actualización
+      parameters:
+        - in: path
+          name: id_integracion
+          description: id_integracion Persona
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: pos
+          description: Api Token del POS.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Persona"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Persona"
+        '500':
+          description: Error en el servidor
+
+  /api/v2/categoria/:
+    get:
+      tags:
+        - Categoria
+      description: |-
+        > GET https://api.contifico.com/sistema/api/v2/categoria/
+
+        Devuelve un listado con todas las categorías creadas en el sistema.
+
+        |      Parámetro    |	  Tipo  |	Longitud |	                            Descripción                                          |
+        |-------------------|---------|----------|-----------------------------------------------------------------------------------|
+        |       nombre      |	varchar |	   300   |	Nombre de la categoría.                                                          |
+        |         id        |	varchar |	    16   |	Identificador de la categoria en el sistema.                                     |
+
+      operationId: Consulta
+      parameters:
+        - in: query
+          name: tipo
+          schema:
+            type: string
+            description: Tipo de la categoria. [Transaccional, Grupo].
+        - in: query
+          name: search_exact
+          schema:
+            type: string
+            description: Filtra por nombre de la categoria.
+        - in: query
+          name: modificados_desde_fecha
+          schema:
+            type: date
+            description: Filtra por fecha de modificación.
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Categoria"
+    post:
+      tags:
+        - Categoria
+      description: |-
+        Para crear una categoría se debe de hacer uso de la url:
+
+        > POST https://api.contifico.com/sistema/api/v2/categoria/
+
+
+        |     Parámetro     |	  Tipo  |	Longitud |	                                Descripción                                      |	Obligatorio |
+        |-------------------|---------|----------|-----------------------------------------------------------------------------------|--------------|
+        |      nombre       |	varchar |	   300   |	Nombre de la categoría.                                                          |	    Si      |
+
+      operationId: Creación
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Categoria"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Categoria"
+
+  /api/v2/categoria/{id_integracion}/:
+    get:
+      tags:
+        - Categoria
+      description: |-
+        > GET https://api.contifico.com/sistema/api/v2/categoria/{id_integracion}/
+
+        Devuelve una categoría con el id solicitado.
+
+        |      Parámetro    |	  Tipo  |	Longitud |	                            Descripción                                          |
+        |-------------------|---------|----------|-----------------------------------------------------------------------------------|
+        |       nombre      |	varchar |	   300   |	Nombre de la categoría.                                                          |
+        |         id        |	varchar |	    16   |	Identificador de la categoria en el sistema.                                     |
+
+      operationId: Obtener una categoría
+      parameters:
+        - in: path
+          name: id_integracion
+          description: id_integracion Categoria
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Categoria" 
+
+    put:
+      tags:
+        - Categoria
+      description: |-
+        > PUT https://api.contifico.com/sistema/api/v2/categoria/{id_integracion}/
+
+        Modifica una categoría con el id solicitado.
+
+        |      Parámetro    |	  Tipo  |	Longitud |	                            Descripción                                          |
+        |-------------------|---------|----------|-----------------------------------------------------------------------------------|
+        |       nombre      |	varchar |	   300   |	Nombre de la categoría.                                                          |
+
+      operationId: Actualizar una categoría
+      parameters:
+        - in: path
+          name: id_integracion
+          description: id_integracion Categoria
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Categoria"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Categoria" 
+
+  /api/v2/bodega/:
+    get:
+      tags:
+        - Bodega
+      description: |-
+        > GET https://api.contifico.com/sistema/api/v2/bodega/
+
+        Devuelve un listado con todas las bodegas creadas en el sistema
+
+
+        | Parámetro  |	 Tipo  |	Longitud |	                   Descripción                   |
+        |------------|---------|-----------|---------------------------------------------------|
+        |    venta   | boolean |	   -     |	Indica si la bodega está marcada para la venta.  |
+        | produccion | boolean |	   -     |	Indica si la bodega está marcada para producción.|
+        |    compra  | boolean |	   -     |	Indica si la bodega está marcada para la compra. |
+        |    nombre  | varchar |	  300    |	Nombre de la bodega.                             |
+        |   codigo   | varchar |	  300    |	Código de la bodega.                             |
+        |      id    | varchar |	   16    |	Identificador de la bodega en el sistema.        |
+
+      operationId: Consulta
+      parameters:
+        - in: query
+          name: fecha_inicial
+          description: Filtro para consultar las bodegas desde la fecha de última modificación.
+          schema:
+            type: date
+        - in: query
+          name: fecha_final
+          description: Filtro para consultar las bodegas hasta la fecha de última modificación.
+          schema:
+            type: date
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bodega" 
+
+  /api/v2/bodega/{id_integracion}/:
+    get:
+      tags:
+        - Bodega
+      description: |-
+        > GET https://api.contifico.com/sistema/api/v2/bodega/{id_integracion}/
+
+        Devuelve una bodega con el id solicitado.
+
+
+        | Parámetro  |	 Tipo  |	Longitud |	                   Descripción                   |
+        |------------|---------|-----------|---------------------------------------------------|
+        |    venta   | boolean |	   -     |	Indica si la bodega está marcada para la venta.  |
+        | produccion | boolean |	   -     |	Indica si la bodega está marcada para producción.|
+        |    compra  | boolean |	   -     |	Indica si la bodega está marcada para la compra. |
+        |    nombre  | varchar |	  300    |	Nombre de la bodega.                             |
+        |   codigo   | varchar |	  300    |	Código de la bodega.                             |
+        |      id    | varchar |	   16    |	Identificador de la bodega en el sistema.        |
+
+      operationId: Obtener una bodega
+      parameters:
+        - in: path
+          name: id_integracion
+          description: Id de integracion de la bodega
+          required: true
+          schema: 
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bodega" 
+    
+  /api/v2/producto/:
+    get:
+      tags:
+        - Producto
+      description: |- 
+        > GET https://api.contifico.com/sistema/api/v2/producto/
+
+        Devuelve un listado con todos los productos creados en el sistema.
+
+
+        | Parámetro                  | Tipo               | Longitud | Descripción                                                                 |
+        |----------------------------|--------------------|----------|-----------------------------------------------------------------------------|
+        | porcentaje_iva             | SmallIntegerField  | -        | Valor de porcentaje de IVA que tiene el producto.                           |
+        | costo_maximo               | decimal            | 13       | Valor de costo máximo que puede tener el producto (7 int, 6 decimal) max.   |
+        | descripcion_departamento   | varchar            | 40       | Descripción de departamento de Mi Comisariato. (Modulo adicional)           |
+        | imagen                     | obj                | -        | Objeto Foto relacionado al producto.                                        |
+        | minimo                     | decimal            | 13       | Valor mínimo de stock que debe estar disponible (7 int, 6 decimal) max.     |
+        | para_comisariato           | boolean            | 1        | Indicador si el producto se usa para comisariato. (Modulo adicional)        |
+        | indicador_peso             | varchar            | 1        | Indicador de balanza (0:no es de balanza, 1:requiere peso, 2:por cantidad). (Modulo adicional) |
+        | generacion_automatica      | boolean            | 1        | Variable de control para determinar si el producto se utiliza en Orden de Compra. |
+        | cuenta_costo_id            | varchar            | 16       | Identificador de la cuenta costo en el sistema.                             |
+        | pvp2                       | decimal            | 13       | Precio de venta 2 (7 int, 6 decimal) max.                                   |
+        | tipo                       | varchar            | 16       | Tipo de producto (PRO:Producto, SER:Servicio).                              |
+        | fecha_creacion             | date               | -        | Fecha de creación del producto. (dd/mm/aaaa)                                |
+        | id                         | varchar            | 16       | Identificador del producto en el sistema.                                   |
+        | tipo_producto              | varchar            | 3        | Subtipo del tipo Producto (SIM:simple, COM:combo, COP:compuesto, PRO:producción) |
+        | pvp3                       | decimal            | 13       | Precio de venta 3 (7 int, 6 decimal) max.                                   |
+        | codigo_proveedor           | varchar            | 200      | Código utilizado para catálogo de productos.                                |
+        | pvp1                       | decimal            | 13       | Precio de venta 1 (7 int, 6 decimal) max.                                   |
+        | id_integracion_proveedor   | varchar            | 16       | Identificador de la persona proveedor en el sistema.                        |
+        | para_supereasy             | boolean            | 1        | Indicador si el producto se usa para supereasy. (Modulo adicional)          |
+        | nombre                     | varchar            | 300      | Nombre del producto.                                                        |
+        | codigo_sap                 | varchar            | 200      | Código de producto registrado desde SAP. (Modulo adicional)                 |
+        | descripcion_jerarquia      | varchar            | 40       | Descripción de jerarquía de Mi Comisariato. (Modulo adicional)              |
+        | pvp_manual                 | boolean            | 1        | Variable de control para determinar si el producto utiliza precio manual.   |
+        | codigo_barra               | varchar            | 50       | Secuencia que representa el código de barras de un producto.                |
+        | pvp_comisariato            | decimal            | 13       | Precio de venta de Mi Comisariato (7 int, 6 decimal) max. (Modulo adicional)|
+        | pvp4                       | decimal            | 13       | Precio de venta 4 (7 int, 6 decimal) max.                                   |
+        | cuenta_venta_id            | varchar            | 16       | Identificador de la cuenta contable asignada para la venta en el sistema.   |
+        | categoria_id               | varchar            | 16       | Identificador de la categoría en el sistema.                                |
+        | peso_hasta                 | decimal            | 5        | Valor de peso final para balanza. (Modulo adicional)                        |
+        | pvp_peso                   | decimal            | 13       | Valor de venta de peso para balanza (7 int, 6 decimal) max. (Modulo adicional) |
+        | jerarquia                  | varchar            | 10       | Jerarquía del producto en Mi Comisariato. (Modulo adicional)                |
+        | departamento               | varchar            | 3        | Identificador de departamento de Mi Comisariato. (Modulo adicional)         |
+        | para_pos                   | boolean            | 1        | Variable de control para determinar si el producto se utiliza en POS.       |
+        | familia                    | varchar            | 6        | Identificador de familia de Mi Comisariato. (Modulo adicional)              |
+        | marca_id                   | varchar            | 16       | Identificador de la marca en el sistema.                                    |
+        | marca_nombre               | varchar            | 50       | Nombre de la marca asociada al producto.                                    |
+        | estado                     | varchar            | 1        | Estado del producto (A:activo, I:inactivo).                                 |
+        | categoria_comisariato      | varchar            | 16       | Identificador de la categoría comisariato en el sistema. (Modulo adicional) |
+        | cuenta_compra_id           | varchar            | 16       | Identificador de la cuenta contable asignada para la compra en el sistema.  |
+        | personalizado1             | varchar            | 300      | Campo personalizado para información adicional del producto.                |
+        | peso_desde                 | decimal            | 5        | Valor de peso inicial para balanza. (Modulo adicional)                      |
+        | personalizado2             | varchar            | 300      | Campo personalizado para información adicional del producto.                |
+        | codigo                     | varchar            | 200      | Código único del producto.                                                  |
+        | nombre_producto_base       | varchar            | 300      | Nombre del producto padre.                                                  |
+        | pvp_supereasy              | decimal            | 13       | Precio de venta de Super Easy (7 int, 6 decimal) max. (Modulo adicional)    |
+        | variantes                  | obj                | -        | Objeto contenedor de las variantes del producto.                            |
+        | producto_base_id           | varchar            | 16       | Identificador del producto en el sistema.                                   |
+        | detalle_variantes          | obj                | -        | Objeto contenedor de los detalles de las variantes del producto.            |
+        | valor_id                   | varchar            | 16       | Identificador del valor de la variante en el sistema.                       |
+        | variante_id                | varchar            | 16       | Identificador de la variante en el sistema.                                 |
+        | lead_time                  | int                | -        | Tiempo estimado para recepción de producto desde su solicitud.              |
+        | cantidad_stock             | varchar            | 16       | Stock del producto.                                                         |
+        | unidad                     | varchar            | 16       | Id de la unidad del producto.                                               |
+        | codigo_auxiliar            | varchar            | 25       | Codigo auxiliar del producto.                                               |
+        | porcentaje_ice             | decimal            | 5        | Porcentaje ICE (3 int, 2 decimal)max.                                       |
+        | valor_ice                  | decimal            | 5        | Valor ICE (3 int, 2 decimal)max.                                            |
+        | campo_catalogo             | varchar            | 200      | Texto adicional utilizado para mostrar en los catalagos de productos.       |
+        | maneja_nombremanual        | boolean            | 1        | Indica si el producto maneja nombre manual                                  |
+        | porcentaje_servicio        | boolean            | 1        | Indica si el producto maneja porcentaje de servicio                                          |
+
+      operationId: Consulta
+      parameters:
+        - in: query 
+          name: modificados_desde_fecha
+          description: Filtra productos desde la fecha del último cambio.
+          schema:
+            type: date
+        - in: query 
+          name: fecha_inicial
+          description: Filtro de fecha inicial de la fecha de último cambio.
+          schema:
+            type: date
+        - in: query 
+          name: fecha_final
+          description: Filtro de fecha final de la fecha de último cambio.
+          schema:
+            type: date
+        - in: query 
+          name: filtro
+          description: Filtro que puede contener nombre o código del producto.
+          schema:
+            type: string
+        - in: query 
+          name: page
+          description: Consultar productos por página, se envía el parámetro page y el número de la página, y esto retorna 100 items.
+          schema:
+            type: string
+        - in: query 
+          name: estado
+          description: Consultar productos por estado (A=activo, I=inactivo).
+          schema:
+            type: string
+        - in: query 
+          name: categoria_id
+          description: Identificador de la categoría.
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Producto" 
+    post:
+      tags:
+        - Producto
+      description: |-
+        Para la creación de productos, depende de la configuración de parámetros de cada empresa,
+        especialmente al parámetro “habilitar_comiexpress”, cuando este parámetro se encuentre habilitado,
+        se crea el detalle del producto. 
+
+        > POST https://api.contifico.com/sistema/api/v2/producto/
+
+        Para obtener el ID de la categoría, se debe hacer uso del servicio de consulta de categorías.
+
+        | Parámetro                | Tipo               | Longitud | Descripción                                                                 | Obligatorio |
+        |--------------------------|--------------------|----------|-----------------------------------------------------------------------------|-------------|
+        | porcentaje_iva           | SmallIntegerField  |        - | Valor de porcentaje de IVA que tiene el producto.                           | No          |
+        | costo_maximo             | decimal            |       13 | Valor de costo máximo que puede tener el producto (7 int, 6 decimal) max.   | No          |
+        | descripcion_departamento | varchar            |       40 | Descripción de departamento de Mi Comisariato. (Modulo adicional)           | No          |
+        | imagen                   | obj                |        - | Objeto Foto relacionado al producto.                                        | No          |
+        | minimo                   | decimal            |       13 | Valor mínimo de stock que debe estar disponible (7 int, 6 decimal) max.     | Si          |
+        | para_comisariato         | boolean            |        1 | Indicador si el producto se usa para comisariato. (Modulo adicional)        | No          |
+        | indicador_peso           | varchar            |        1 | Indicador de balanza (0:no es de balanza, 1:requiere peso, 2:por cantidad). (Modulo adicional) | No |
+        | generacion_automatica    | boolean            |        1 | Variable de control para determinar si el producto se utiliza en Orden de Compra. | No |
+        | cuenta_costo_id          | varchar            |       16 | Identificador de la cuenta costo en el sistema.                             | No          |
+        | pvp2                     | decimal            |       13 | Precio de venta 2 (7 int, 6 decimal) max.                                   | No          |
+        | tipo                     | varchar            |       16 | Tipo de producto (PRO:Producto, SER:Servicio). *Por defecto PRO si no se envía en el JSON | No |
+        | fecha_creacion           | date               |        - | Fecha de creación del producto.(dd/mm/aaaa)                                 | No          |
+        | tipo_producto            | varchar            |        3 | Subtipo del tipo Producto (SIM:simple)                                      | No          |
+        | pvp3                     | decimal            |       13 | Precio de venta 3 (7 int, 6 decimal) max.                                   | No          |
+        | codigo_proveedor         | varchar            |      200 | Código utilizado para catálogo de productos.                                | No          |
+        | pvp1                     | decimal            |       13 | Precio de venta 1 (7 int, 6 decimal) max.                                   | Si          |
+        | id_integracion_proveedor | varchar            |       16 | Identificador de la persona proveedor en el sistema.                        | No          |
+        | para_supereasy           | boolean            |        1 | Indicador si el producto se usa para supereasy. (Modulo adicional)          | No          |
+        | nombre                   | varchar            |      300 | Nombre del producto.                                                        | Si          |
+        | codigo_sap               | varchar            |      200 | Código de producto registrado desde SAP. (Modulo adicional)                 | No          |
+        | descripcion_jerarquia    | varchar            |       40 | Descripción de jerarquía de Mi Comisariato. (Modulo adicional)              | No          |
+        | pvp_manual               | boolean            |        1 | Variable de control para determinar si el producto utiliza precio manual.   | Opcional    |
+        | codigo_barra             | varchar            |       50 | Secuencia que representa el código de barras de un producto.                | No          |
+        | pvp_comisariato          | decimal            |       13 | Precio de venta de Mi Comisariato (7 int, 6 decimal) max. (Modulo adicional)| No          |
+        | pvp4                     | decimal            |       13 | Precio de venta 4 (7 int, 6 decimal) max.                                   | No          |
+        | cuenta_venta_id          | varchar            |       16 | Identificador de la cuenta contable asignada para la venta en el sistema.   | No          |
+        | categoria_id             | varchar            |       16 | Identificador de la categoría en el sistema.                                | No          |
+        | peso_hasta               | decimal            |        5 | Valor de peso final para balanza. (Modulo adicional)                        | No          |
+        | pvp_peso                 | decimal            |       13 | Valor de venta de peso para balanza (7 int, 6 decimal) max. (Modulo adicional) | No |
+        | jerarquia                | varchar            |       10 | Jerarquía del producto en Mi Comisariato. (Modulo adicional)                | No          |
+        | departamento             | varchar            |        3 | Identificador de departamento de Mi Comisariato. (Modulo adicional)         | No          |
+        | para_pos                 | boolean            |        1 | Variable de control para determinar si el producto se utiliza en POS.       | No          |
+        | familia                  | varchar            |        6 | Identificador de familia de Mi Comisariato. (Modulo adicional)              | No          |
+        | marca_id                 | varchar            |       16 | Identificador de la marca en el sistema.                                    | No          |
+        | marca_nombre             | varchar            |       50 | Nombre de la marca asociada al producto.                                    | No          |
+        | estado                   | varchar            |        1 | Estado del producto (A:activo, I:inactivo).                                 | Si          |
+        | categoria_comisariato    | varchar            |       16 | Identificador de la categoría comisariato en el sistema. (Modulo adicional) | No          |
+        | cuenta_compra_id         | varchar            |       16 | Identificador de la cuenta contable asignada para la compra en el sistema.  | No          |
+        | personalizado1           | varchar            |      300 | Campo personalizado para información adicional del producto.                | No          |
+        | peso_desde               | decimal            |        5 | Valor de peso inicial para balanza. (Modulo adicional)                      | No          |
+        | personalizado2           | varchar            |      300 | Campo personalizado para información adicional del producto.                | No          |
+        | codigo                   | varchar            |      200 | Código único del producto.                                                  | Si          |
+        | nombre_producto_base     | varchar            |      300 | Nombre del producto padre.                                                  | No          |
+        | pvp_supereasy            | decimal            |       13 | Precio de venta de Super Easy (7 int, 6 decimal) max. (Modulo adicional)    | No          |
+        | variantes                | obj                |        - | Objeto contenedor de las variantes del producto.                            | No          |
+        | producto_base_id         | varchar            |       16 | Identificador del producto en el sistema.                                   | No          |
+        | detalle_variantes        | obj                |        - | Objeto contenedor de los detalles de las variantes del producto.            | No          |
+        | valor_id                 | varchar            |       16 | Identificador del valor de la variante en el sistema.                       | No          |
+        | variante_id              | varchar            |       16 | Identificador de la variante en el sistema.                                 | No          |
+        | lead_time                | int                |        - | Tiempo estimado para recepción de producto desde su solicitud.              | No          |
+        | cantidad_stock           | varchar            |       16 | Stock del producto.                                                         | No          |
+        | unidad                     | varchar            | 16       | Id de la unidad del producto.                                               |
+        | codigo_auxiliar            | varchar            | 25       | Codigo auxiliar del producto.                                               |
+        | porcentaje_ice             | decimal            | 5        | Porcentaje ICE (3 int, 2 decimal)max.                                       |
+        | valor_ice                  | decimal            | 5        | Valor ICE (3 int, 2 decimal)max.                                            |
+        | campo_catalogo             | varchar            | 200      | Texto adicional utilizado para mostrar en los catalagos de productos.       |
+        | maneja_nombremanual        | boolean            | 1        | Indica si el producto maneja nombre manual                                  |
+        | porcentaje_servicio        | boolean            | 1        | Indica si el producto maneja porcentaje de servicio                                          |
+
+        NOTA: El campo “tipo” se puede dejar vacío o solo enviar los valores “PRO” para producto o “SER” para servicio. 
+
+        Se debe enviar mínimo un pvp o el campo “pvp_manual” como true. 
+
+        El campo “codigo”, puede tener un máximo de 25 caracteres.
+
+        El campo marca_id y marca_nombre muestran informacion de la marca asociada al producto.
+
+      operationId: Creación
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Producto"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Producto"
+
+  /api/v2/producto/{id_integracion}:
+    get:
+      tags:
+        - Producto
+      description: |-
+        > GET https://api.contifico.com/sistema/api/v2/producto/{id_integracion}
+
+        Devuelve un objeto JSON de un producto, utilizando el id solicitado.
+
+
+        | Parámetro                  | Tipo               | Longitud | Descripción                                                                 |
+        |----------------------------|--------------------|----------|-----------------------------------------------------------------------------|
+        | porcentaje_iva             | SmallIntegerField  | -        | Valor de porcentaje de IVA que tiene el producto.                           |
+        | costo_maximo               | decimal            | 13       | Valor de costo máximo que puede tener el producto (7 int, 6 decimal) max.   |
+        | descripcion_departamento   | varchar            | 40       | Descripción de departamento de Mi Comisariato. (Modulo adicional)           |
+        | imagen                     | obj                | -        | Objeto Foto relacionado al producto.                                        |
+        | minimo                     | decimal            | 13       | Valor mínimo de stock que debe estar disponible (7 int, 6 decimal) max.     |
+        | para_comisariato           | boolean            | 1        | Indicador si el producto se usa para comisariato. (Modulo adicional)        |
+        | indicador_peso             | varchar            | 1        | Indicador de balanza (0:no es de balanza, 1:requiere peso, 2:por cantidad). (Modulo adicional) |
+        | generacion_automatica      | boolean            | 1        | Variable de control para determinar si el producto se utiliza en Orden de Compra. |
+        | cuenta_costo_id            | varchar            | 16       | Identificador de la cuenta costo en el sistema.                             |
+        | pvp2                       | decimal            | 13       | Precio de venta 2 (7 int, 6 decimal) max.                                   |
+        | tipo                       | varchar            | 16       | Tipo de producto (PRO:Producto, SER:Servicio).                              |
+        | fecha_creacion             | date               | -        | Fecha de creación del producto.(dd/mm/aaaa)                                 |
+        | id                         | varchar            | 16       | Identificador del producto en el sistema.                                   |
+        | tipo_producto              | varchar            | 3        | Subtipo del tipo Producto (SIM:simple, COM:combo, COP:compuesto, PRO:producción) |
+        | pvp3                       | decimal            | 13       | Precio de venta 3 (7 int, 6 decimal) max.                                   |
+        | codigo_proveedor           | varchar            | 200      | Código utilizado para catálogo de productos.                                |
+        | pvp1                       | decimal            | 13       | Precio de venta 1 (7 int, 6 decimal) max.                                   |
+        | id_integracion_proveedor   | varchar            | 16       | Identificador de la persona proveedor en el sistema.                        |
+        | para_supereasy             | boolean            | 1        | Indicador si el producto se usa para supereasy. (Modulo adicional)          |
+        | nombre                     | varchar            | 300      | Nombre del producto.                                                        |
+        | codigo_sap                 | varchar            | 200      | Código de producto registrado desde SAP. (Modulo adicional)                 |
+        | descripcion_jerarquia      | varchar            | 40       | Descripción de jerarquía de Mi Comisariato. (Modulo adicional)              |
+        | pvp_manual                 | boolean            | 1        | Variable de control para determinar si el producto utiliza precio manual.   |
+        | codigo_barra               | varchar            | 50       | Secuencia que representa el código de barras de un producto.                |
+        | pvp_comisariato            | decimal            | 13       | Precio de venta de Mi Comisariato (7 int, 6 decimal) max. (Modulo adicional)|
+        | pvp4                       | decimal            | 13       | Precio de venta 4 (7 int, 6 decimal) max.                                   |
+        | cuenta_venta_id            | varchar            | 16       | Identificador de la cuenta contable asignada para la venta en el sistema.   |
+        | categoria_id               | varchar            | 16       | Identificador de la categoría en el sistema.                                |
+        | peso_hasta                 | decimal            | 5        | Valor de peso final para balanza. (Modulo adicional)                        |
+        | pvp_peso                   | decimal            | 13       | Valor de venta de peso para balanza (7 int, 6 decimal) max. (Modulo adicional) |
+        | jerarquia                  | varchar            | 10       | Jerarquía del producto en Mi Comisariato. (Modulo adicional)                |
+        | departamento               | varchar            | 3        | Identificador de departamento de Mi Comisariato. (Modulo adicional)         |
+        | para_pos                   | boolean            | 1        | Variable de control para determinar si el producto se utiliza en POS.       |
+        | familia                    | varchar            | 6        | Identificador de familia de Mi Comisariato. (Modulo adicional)              |
+        | marca_id                   | varchar            | 16       | Identificador de la marca en el sistema.                                    |
+        | marca_nombre               | varchar            | 50       | Nombre de la marca asociada al producto.                                    |
+        | estado                     | varchar            | 1        | Estado del producto (A:activo, I:inactivo).                                 |
+        | categoria_comisariato      | varchar            | 16       | Identificador de la categoría comisariato en el sistema. (Modulo adicional) |
+        | cuenta_compra_id           | varchar            | 16       | Identificador de la cuenta contable asignada para la compra en el sistema.  |
+        | personalizado1             | varchar            | 300      | Campo personalizado para información adicional del producto.                |
+        | peso_desde                 | decimal            | 5        | Valor de peso inicial para balanza. (Modulo adicional)                      |
+        | personalizado2             | varchar            | 300      | Campo personalizado para información adicional del producto.                |
+        | codigo                     | varchar            | 200      | Código único del producto.                                                  |
+        | nombre_producto_base       | varchar            | 300      | Nombre del producto padre.                                                  |
+        | pvp_supereasy              | decimal            | 13       | Precio de venta de Super Easy (7 int, 6 decimal) max. (Modulo adicional)    |
+        | variantes                  | obj                | -        | Objeto contenedor de las variantes del producto.                            |
+        | producto_base_id           | varchar            | 16       | Identificador del producto en el sistema.                                   |
+        | detalle_variantes          | obj                | -        | Objeto contenedor de los detalles de las variantes del producto.            |
+        | valor_id                   | varchar            | 16       | Identificador del valor de la variante en el sistema.                       |
+        | variante_id                | varchar            | 16       | Identificador de la variante en el sistema.                                 |
+        | lead_time                  | int                | -        | Tiempo estimado para recepción de producto desde su solicitud.              |
+        | cantidad_stock             | varchar            | 16       | Stock del producto.                                                         |
+        | unidad                     | varchar            | 16       | Id de la unidad del producto.                                               |
+        | codigo_auxiliar            | varchar            | 25       | Codigo auxiliar del producto.                                               |
+        | porcentaje_ice             | decimal            | 5        | Porcentaje ICE (3 int, 2 decimal)max.                                       |
+        | valor_ice                  | decimal            | 5        | Valor ICE (3 int, 2 decimal)max.                                            |
+        | campo_catalogo             | varchar            | 200      | Texto adicional utilizado para mostrar en los catalagos de productos.       |
+        | maneja_nombremanual        | boolean            | 1        | Indica si el producto maneja nombre manual                                  |
+        | porcentaje_servicio        | boolean            | 1        | Indica si el producto maneja porcentaje de servicio                                          |
+
+      operationId: Obtener un producto
+      parameters:
+        - in: path
+          name: id_integracion
+          description: Id de integracion Producto
+          required: true
+          schema: 
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Producto"         
+    put:
+      tags:
+        - Producto
+      description: |-
+        Para modificar un producto, se utiliza la siguiente URL:
+
+        > PUT https://api.contifico.com/sistema/api/v2/producto/{id_integracion}/
+
+        Para la modificación de un producto, depende de la configuración de parámetros de cada empresa, 
+        especialmente al parámetro “habilitar_comiexpress”, cuando este parámetro se encuentre habilitado, 
+        se crea el detalle del producto. 
+
+        | Parámetro                | Tipo               | Longitud | Descripción                                                                 | Obligatorio |
+        |--------------------------|--------------------|----------|-----------------------------------------------------------------------------|-------------|
+        | porcentaje_iva           | SmallIntegerField  |        - | Valor de porcentaje de IVA que tiene el producto.                           | No          |
+        | costo_maximo             | decimal            |       13 | Valor de costo máximo que puede tener el producto (7 int, 6 decimal) max.   | No          |
+        | minimo                   | decimal            |       13 | Valor mínimo de stock que debe estar disponible (7 int, 6 decimal) max.     | Si          |
+        | para_comisariato         | boolean            |        1 | Indicador si el producto se usa para comisariato. (Modulo adicional)        | No          |
+        | indicador_peso           | varchar            |        1 | Indicador de balanza (0:no es de balanza, 1:requiere peso, 2:por cantidad). (Modulo adicional) | No |
+        | generacion_automatica    | boolean            |        1 | Variable de control para determinar si el producto se utiliza en Orden de Compra. | No |
+        | cuenta_costo_id          | varchar            |       16 | Identificador de la cuenta costo en el sistema.                             | No          |
+        | pvp2                     | decimal            |       13 | Precio de venta 2 (7 int, 6 decimal) max.                                   | No          |
+        | tipo                     | varchar            |       16 | Tipo de producto (PRO:Producto, SER:Servicio). *Por defecto PRO si no se envía en el JSON | No |
+        | tipo_producto            | varchar            |        3 | Subtipo del tipo Producto (SIM:simple)                                      | No          |
+        | pvp3                     | decimal            |       13 | Precio de venta 3 (7 int, 6 decimal) max.                                   | No          |
+        | codigo_proveedor         | varchar            |      200 | Código utilizado para catálogo de productos.                                | No          |
+        | pvp1                     | decimal            |       13 | Precio de venta 1 (7 int, 6 decimal) max.                                   | Si          |
+        | para_supereasy           | boolean            |        1 | Indicador si el producto se usa para supereasy. (Modulo adicional)          | No          |
+        | nombre                   | varchar            |      300 | Nombre del producto.                                                        | Si          |
+        | codigo_sap               | varchar            |      200 | Código de producto registrado desde SAP. (Modulo adicional)                 | No          |
+        | descripcion_jerarquia    | varchar            |       40 | Descripción de jerarquía de Mi Comisariato. (Modulo adicional)              | No          |
+        | pvp_manual               | boolean            |        1 | Variable de control para determinar si el producto utiliza precio manual.   | Opcional    |
+        | codigo_barra             | varchar            |       50 | Secuencia que representa el código de barras de un producto.                | No          |
+        | pvp_comisariato          | decimal            |       13 | Precio de venta de Mi Comisariato (7 int, 6 decimal) max. (Modulo adicional)| No          |
+        | pvp4                     | decimal            |       13 | Precio de venta 4 (7 int, 6 decimal) max.                                   | No          |
+        | cuenta_venta_id          | varchar            |       16 | Identificador de la cuenta contable asignada para la venta en el sistema.   | No          |
+        | categoria_id             | varchar            |       16 | Identificador de la categoría en el sistema.                                | No          |
+        | peso_hasta               | decimal            |        5 | Valor de peso final para balanza. (Modulo adicional)                        | No          |
+        | pvp_peso                 | decimal            |       13 | Valor de venta de peso para balanza (7 int, 6 decimal) max. (Modulo adicional) | No |
+        | jerarquia                | varchar            |       10 | Jerarquía del producto en Mi Comisariato. (Modulo adicional)                | No          |
+        | departamento             | varchar            |        3 | Identificador de departamento de Mi Comisariato. (Modulo adicional)         | No          |
+        | para_pos                 | boolean            |        1 | Variable de control para determinar si el producto se utiliza en POS.       | No          |
+        | familia                  | varchar            |        6 | Identificador de familia de Mi Comisariato. (Modulo adicional)              | No          |
+        | marca_id                 | varchar            |       16 | Identificador de la marca en el sistema.                                    | No          |
+        | estado                   | varchar            |        1 | Estado del producto (A:activo, I:inactivo).                                 | Si          |
+        | categoria_comisariato    | varchar            |       16 | Identificador de la categoría comisariato en el sistema. (Modulo adicional) | No          |
+        | cuenta_compra_id         | varchar            |       16 | Identificador de la cuenta contable asignada para la compra en el sistema.  | No          |
+        | personalizado1           | varchar            |      300 | Campo personalizado para información adicional del producto.                | No          |
+        | peso_desde               | decimal            |        5 | Valor de peso inicial para balanza. (Modulo adicional)                      | No          |
+        | personalizado2           | varchar            |      300 | Campo personalizado para información adicional del producto.                | No          |
+        | codigo                   | varchar            |      200 | Código único del producto.                                                  | Si          |
+        | pvp_supereasy            | decimal            |       13 | Precio de venta de Super Easy (7 int, 6 decimal) max. (Modulo adicional)    | No          |
+        | cantidad_stock           | varchar            |       16 | Stock del producto.                                                         | No          |
+        | unidad                   | varchar            | 16       | Id de la unidad del producto.                                               | No          |
+        | codigo_auxiliar          | varchar            | 25       | Codigo auxiliar del producto.                                               | No          |
+        | porcentaje_ice           | decimal            | 5        | Porcentaje ICE (3 int, 2 decimal)max.                                       | No          |
+        | valor_ice                | decimal            | 5        | Valor ICE (3 int, 2 decimal)max.                                            | No          |
+        | campo_catalogo           | varchar            | 200      | Texto adicional utilizado para mostrar en los catalagos de productos.       | No          |
+        | maneja_nombremanual      | boolean            | 1        | Indica si el producto maneja nombre manual                                  | No          |
+        | porcentaje_servicio      | boolean            | 1        | Indica si el producto maneja porcentaje de servicio                         | No          |
+
+      operationId: Actualización
+      parameters:
+        - in: path
+          name: id_integracion
+          description: Id de integracion Producto
+          required: true
+          schema: 
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Producto"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Producto" 
+
+  /api/v2/producto/{id_integracion}/stock/:
+    get:
+      tags:
+        - Producto
+      description: |-
+        Para obtener el stock de un producto por bodega se puede hacer uso del servicio:
+
+        > GET https://api.contifico.com/sistema/api/v2/producto/{id_integracion}/stock/
+
+        Esto nos devolverá un JSON listando el stock de las bodegas que pertenezcan a un punto de venta
+        en Contífico.
+
+        | Parámetro     | Tipo    | Longitud | Descripción                                                   |
+        |---------------|:-------:|---------:|---------------------------------------------------------------|
+        | bodega_nombre | varchar |      200 | Nombre de la bodega.                                          |
+        | bodega_id     | varchar |       16 | Identificador de la bodega en el sistema.                     |
+        | cantidad      | decimal |       13 | Cantidad actual del producto en la bodega (7 int, 6 decimal) max. |
+
+      operationId: Obtener Stock de bodegas
+      parameters:
+        - in: path
+          name: id_integracion
+          description: Id de integracion Producto
+          required: true
+          schema: 
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Stock"
+  
+  /api/v2/movimiento-inventario/:
+    get:
+      tags:
+        - Movimientos de Inventario
+      description: |-
+        > GET https://api.contifico.com/sistema/api/v2/movimiento-inventario/
+
+        Devuelve un listado de los movimientos de inventario.
+
+
+        | Parámetro         | Tipo     | Longitud | Descripción                                                                 |
+        |-------------------|:--------:|---------:|-----------------------------------------------------------------------------|
+        | codigo            | varchar  |       16 | Código del movimiento de inventario.                                        |
+        | bodega_id         | varchar  |       16 | Identificador de la bodega en el sistema.                                   |
+        | tipo              | varchar  |        3 | Tipo de movimiento de inventario (ING:ingreso, EGR:egreso, TRA:traslado, AJU:ajuste de costo) |
+        | fecha             | date     |        - | Fecha del movimiento de inventario (dd/mm/aaaa)                             |
+        | generar_asiento   | boolean  |        - | Indica si el movimiento se marcó para generar un asiento.                   |
+        | pos               | varchar  |       16 | Identificador del punto de venta desde el que se registró el movimiento.    |
+        | detalles          | objeto   |        - | Objeto contenedor de los detalles del movimiento.                           |
+        | producto_id       | varchar  |       16 | Identificador del producto en el sistema.                                   |
+        | edicion           | boolean  |        - | Campo para módulo específico.                                               |
+        | precio            | decimal  |       13 | Precio del producto en el movimiento (7 int, 6 decimal) max.                |
+        | cantidad          | decimal  |       13 | Indica la cantidad del producto en el movimiento (7 int, 6 decimal) max.    |
+        | maneja_venta      | boolean  |        - | Campo para módulo específico.                                               |
+        | descripcion       | text     |        - | Descripción del movimiento.                                                 |
+        | total             | decimal  |       10 | Valor total del movimiento (8 int, 2 decimal) max.                          |
+        | estado            | varchar  |        1 | Estado del movimiento de inventario (G:generado, P:pendiente).              |
+        | id                | varchar  |       16 | Identificador del movimiento en el sistema.                                 |
+        | bodega_destino_id | varchar  |       16 | Identificador de la bodega destino del movimiento en el sistema.            |
+        | codigo_interno    | varchar  |        - | Campo para módulo específico.                                               |
+        | cuenta_id         | varchar  |        16| Id de la cuenta contable.                                                   |
+        | proyecto          | varchar  |        16| Proyecto.                                                                   |
+
+      operationId: Consulta
+      parameters:
+        - in: query
+          name: fecha_inicial
+          description: Consultar movimientos por rango de fecha.
+          schema: 
+            type: date
+        - in: query
+          name: fecha_final
+          description: Consultar movimientos por rango de fecha
+          schema: 
+            type: date
+        - in: query
+          name: estado
+          description: G:generado, P:pendiente
+          schema: 
+            type: string
+        - in: query
+          name: tipo
+          description: ING:ingreso EGR:egreso, TRA:traslado, AJU:ajuste de costo
+          schema: 
+            type: string
+        - in: query
+          name: bodega_id
+          description: Id de la bodega del movimiento
+          schema: 
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MovimientoInventario"      
+    post:
+      tags:
+        - Movimientos de Inventario
+      description: |-
+        Se utiliza esta URL para la creación de ingresos, egresos y traslados de inventario
+
+        > POST https://api.contifico.com/sistema/api/v2/movimiento-inventario/
+
+        | Parámetro         | Tipo     | Longitud | Descripción                                                                 | Obligatorio |
+        |-------------------|:--------:|---------:|-----------------------------------------------------------------------------|:-----------:|
+        | codigo            | varchar  |       16 | Código del movimiento de inventario.                                        | No          |
+        | bodega_id         | varchar  |       16 | Identificador de la bodega en el sistema.                                   | Si          |
+        | tipo              | varchar  |        3 | Tipo de movimiento de inventario (ING:ingreso, EGR:egreso, TRA:traslado, AJU:ajuste de costo) | Si |
+        | fecha             | date     |        - | Fecha del movimiento de inventario (dd/mm/aaaa)                             | Si          |
+        | generar_asiento   | boolean  |        - | Indica si el movimiento se marcó para generar un asiento.                   | No          |
+        | pos               | varchar  |       16 | Identificador del punto de venta desde el que se registró el movimiento. (Campo obligatorio para movimientos de tipo TRA) | Opcional    |
+        | detalles          | objeto   |        - | Objeto contenedor de los detalles del movimiento.                           | Si          |
+        | producto_id       | varchar  |       16 | Identificador del producto en el sistema.                                   | Si          |
+        | edicion           | boolean  |        - | Campo para módulo específico.                                               | No          |
+        | precio            | decimal  |       13 | Precio del producto en el movimiento. (Obligatorio para movimientos de tipo ING) (7 int, 6 decimal) max. | Opcional    |
+        | cantidad          | decimal  |       13 | Indica la cantidad del producto en el movimiento (7 int, 6 decimal) max.    | Si          |
+        | maneja_venta      | boolean  |        - | Campo para módulo específico.                                               | No          |
+        | descripcion       | text     |        - | Descripción del movimiento.                                                 | Si          |
+        | bodega_destino_id | varchar  |       16 | Identificador de la bodega destino del movimiento en el sistema. (Campo obligatorio para movimientos de tipo TRA) | Opcional    |
+        | codigo_interno    | varchar  |        - | Campo para módulo específico.                                               | No          |
+
+      operationId: Creación
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MovimientoInventario'
+            examples:
+              ingreso:
+                $ref: '#/components/examples/ingreso'
+              egreso:
+                $ref: '#/components/examples/egreso'
+              traslado:
+                $ref: '#/components/examples/traslado'
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MovimientoInventario" 
+
+  /api/v2/movimiento-inventario/{id_integracion}:
+    get:
+      tags:
+        - Movimientos de Inventario
+      description: |-
+        > GET https://api.contifico.com/sistema/api/v2/movimiento-inventario/{id_integracion}
+
+        Devuelve un movimiento de inventario con el id solicitado.
+
+        | Parámetro         | Tipo     | Longitud | Descripción                                                                 |
+        |-------------------|:--------:|---------:|-----------------------------------------------------------------------------|
+        | codigo            | varchar  |       16 | Código del movimiento de inventario.                                        |
+        | bodega_id         | varchar  |       16 | Identificador de la bodega en el sistema.                                   |
+        | tipo              | varchar  |        3 | Tipo de movimiento de inventario (ING:ingreso, EGR:egreso, TRA:traslado, AJU:ajuste de costo) |
+        | fecha             | date     |        - | Fecha del movimiento de inventario (dd/mm/aaaa)                             |
+        | generar_asiento   | boolean  |        - | Indica si el movimiento se marcó para generar un asiento.                   |
+        | pos               | varchar  |       16 | Identificador del punto de venta desde el que se registró el movimiento.    |
+        | detalles          | objeto   |        - | Objeto contenedor de los detalles del movimiento.                           |
+        | producto_id       | varchar  |       16 | Identificador del producto en el sistema.                                   |
+        | edicion           | boolean  |        - | Campo para módulo específico.                                               |
+        | precio            | decimal  |       13 | Precio del producto en el movimiento (7 int, 6 decimal) max.                |
+        | cantidad          | decimal  |       13 | Indica la cantidad del producto en el movimiento (7 int, 6 decimal) max.    |
+        | maneja_venta      | boolean  |        - | Campo para módulo específico.                                               |
+        | descripcion       | text     |        - | Descripción del movimiento.                                                 |
+        | total             | decimal  |       10 | Valor total del movimiento (8 int, 2 decimal) max.                          |
+        | estado            | varchar  |        1 | Estado del movimiento de inventario (G:generado, P:pendiente).              |
+        | id                | varchar  |       16 | Identificador del movimiento en el sistema.                                 |
+        | bodega_destino_id | varchar  |       16 | Identificador de la bodega destino del movimiento en el sistema.            |
+        | codigo_interno    | varchar  |        - | Campo para módulo específico.                                               |
+        | cuenta_id         | varchar  |        16| Id de la cuenta contable.                                                   |
+        | proyecto          | varchar  |        16| Proyecto.                                                                   |
+
+      operationId: Obtener un movimiento
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MovimientoInventario"
+
+  /api/v2/documento/:
+    get:
+      tags:
+        - Documento
+      description: |-
+        Para obtener todos los documentos de la cuenta hacemos uso del endpoint:
+
+        > GET https://api.contifico.com/sistema/api/v2/documento/
+
+        | Parámetro              | Tipo              | Longitud | Descripción                                                                 |
+        |------------------------|:-----------------:|---------:|-----------------------------------------------------------------------------|
+        | iva                    | SmallIntegerField |        - | Valor de porcentaje de IVA que tiene el producto                            |
+        | tarjeta_consumo_id     | varchar           |       16 | Identificador de la tarjeta de consumo en el sistema.                       |
+        | vendedor               | objeto            |        - | Objeto de la persona vendedor.                                              |
+        | pos                    | varchar           |       36 | API Token del POS.                                                          |
+        | vendedor_id            | varchar           |       16 | Identificador de la persona vendedor en el sistema.                         |
+        | logistica              | boolean           |        1 | Indicador si el documento está marcado para logística (Módulo Adicional).   |
+        | subtotal_0             | decimal           |       10 | Representa el valor subtotal.                                               |
+        | ice                    | decimal           |       10 | Representa el valor del ICE del documento.                                  |
+        | descripcion            | text              |        - | Explicación del documento.                                                  |
+        | total                  | decimal           |       13 | Valor total del movimiento.                                                 |
+        | id                     | varchar           |       16 | Identificador del documento en el sistema.                                  |
+        | subtotal_12            | decimal           |       10 | Representa el valor subtotal del IVA del documento.                         |
+        | servicio               | decimal           |       13 | Representa el valor del porcentaje de servicio del documento.               |
+        | detalles               | objeto            |        - | Objeto contenedor de los ítems a facturar del documento.                    |
+        | producto_id            | varchar           |       16 | Identificador del producto en el sistema.                                   |
+        | cantidad               | decimal           |       20 | Indica la cantidad del producto en el movimiento (14 int, 6 decimal) max.   |
+        | precio                 | decimal           |       13 | Valor del producto en específico.                                           |
+        | porcentaje_iva         | SmallIntegerField |        - | Valor de porcentaje de IVA que tiene el producto.                           |
+        | porcentaje_descuento   | decimal           |       10 | Representa el valor subtotal del IVA del documento.                         |
+        | base_cero              | decimal           |       10 | Representa el valor del producto si grava 0% IVA.                           |
+        | base_gravable          | decimal           |       10 | Representa el valor del producto si grava IVA.                              |
+        | base_no_gravable       | decimal           |       10 | Representa el valor del producto si no grava IVA.                           |
+        | porcentaje_ice         | SmallIntegerField |        - | Representa el valor porcentual de ICE que grava el producto.                |
+        | valor_ice              | decimal           |       10 | Representa el valor entero de ICE que grava el producto.                    |
+        | irbpnr                 | decimal           |       10 | Representa el valor de IRBPNR del producto.                                 |
+        | referencia             | varchar           |      300 | Dato adicional de la factura.                                               |
+        | saldo_anticipo         | decimal           |       10 | Valor del producto en específico.                                           |
+        | tipo_domicilio         | varchar           |        2 | Campo para asociación de delivery del documento (UB:uber, GL:glovo). (Módulo Adicional) |
+        | autorizacion           | varchar           |       49 | Número de autorización del documento.                                       |
+        | hora_evento            | time              |        - | Representa el valor del producto si grava 0% IVA.                           |
+        | fecha_creacion         | date              |        - | Fecha de creación del documento. (dd/mm/aaaa)                               |
+        | cobros                 | objeto            |        - | Objeto contenedor de los cobros del documento.                              |
+        | forma_cobro            | varchar           |       10 | Tipo de documento a aplicar el cobro o pago de la transacción.              |
+        | numero_comprobante     | varchar           |       15 | Secuencia única que identifica la transacción.                              |
+        | caja_id                | varchar           |       16 | Identificador de la caja desde la cual se realiza la transacción.           |
+        | monto                  | decimal           |       10 | Valor total del documento detalle relacionado.                              |
+        | numero_tarjeta         | varchar           |       10 | Número de tarjeta bancaria supereasy (Módulo adicional).                    |
+        | fecha                  | date              |        - | Fecha que se realiza la transacción. (dd/mm/aaaa)                           |
+        | nombre_tarjeta         | varchar           |      300 | Nombre de tarjeta bancaria supereasy (Módulo adicional).                    |
+        | tipo_banco             | char              |      300 | Nombre del banco supereasy (Módulo adicional).                              |
+        | cuenta_bancaria_id     | varchar           |       16 | Identificador de la cuenta bancaria en el sistema.                          |
+        | bin_tarjeta            | varchar           |       10 | Número de tarjeta bancaria supereasy (Módulo adicional).                    |
+        | monto_propina          | decimal           |       10 | Representa el valor de la propina por un servicio.                          |
+        | numero_cheque          | varchar           |       15 | Número de cheque en la transacción.                                         |
+        | fecha_cheque           | date              |        - | Fecha del cheque. (dd/mm/aaaa)                                              |
+        | tipo_ping              | varchar           |        1 | Tipo de transacción con TC (D:datafast, M:medianet, E:dataexpress, P:placetopay, A:alignet). |
+        | id                     | varchar           |       16 | Identificador del cobro en el sistema.                                      |
+        | tipo_descuento         | varchar           |        1 | Identificador del tipo de descuento asignado al documento (P:porcentual, U:unitario). |
+        | orden_domicilio_id     | varchar           |       16 | Id de la orden de delivery (Módulo adicional).                              |
+        | fecha_vencimiento      | date              |        - | Fecha límite de vigencia del documento. (dd/mm/aaaa)                        |
+        | documento_relacionado_id| varchar          |       16 | Identificador del documento relacionado al documento actual en el sistema.  |
+        | fecha_emision          | date              |        - | Fecha de emisión del documento. (dd/mm/aaaa)                                |
+        | vendedor_identificacion| varchar           |       10 | Cédula del vendedor asignado al documento.                                  |
+        | documento              | varchar           |       17 | Número del documento.                                                       |
+        | adicional2             | varchar           |      300 | Dato adicional de la factura.                                               |
+        | firmado                | boolean           |        1 | Indicador si el documento está firmado.                                     |
+        | adicional1             | varchar           |      300 | Dato adicional de la factura.                                               |
+        | hora_emision           | time              |        - | Hora de emisión del documento.                                              |
+        | cliente                | objeto            |        - | Objeto contenedor del cliente del documento.                                |
+        | ruc                    | varchar           |       13 | RUC de la persona.                                                          |
+        | cedula                 | varchar           |       10 | Cédula de la persona.                                                       |
+        | razon_social           | varchar           |      300 | Razón social de la persona.                                                 |
+        | telefonos              | varchar           |      300 | Teléfono de la persona.                                                     |
+        | direccion              | varchar           |      300 | Dirección de la persona.                                                    |
+        | tipo                   | varchar           |        1 | Tipo de persona (N:Natural, J:Juridica, I:SinId, P:Placa).                  |
+        | email                  | varchar           |       50 | Correo de la persona.                                                       |
+        | es_extranjero          | bool              |        - | Verificador de personas extranjeras.                                        |
+        | saldo                  | decimal           |       10 | Identificador del tipo de descuento asignado al documento (P:porcentual, U:unitario). |
+        | entregado              | boolean           |        1 | Indica si el documento ha sido entregado.                                   |
+        | tipo_registro          | varchar           |        3 | Indica el tipo de registro del documento (CLI:cliente, PRO:proveedor).      |
+        | estado                 | varchar           |        1 | Indicador del estado del documento (P:pendiente, C:cobrado, G:pagado, A:anulado, E:generado, F:facturado). |
+        | persona_id             | varchar           |       16 | Identificador de la persona asociada al documento.                          |
+        | tipo_documento         | varchar           |        3 | Tipo de registro del documento (FAC: Factura, LQC: Liquidación de Compra, PRE: Prefactura, NCT: Nota de Crédito, COT: Cotización, OCV: Orden CompraVenta, NVE: Nota de Venta, DNA: Documento No Autorizado).|
+        | fecha_evento           | date              |        - | Fecha evento del documento (Módulo Adicional). (dd/mm/aaaa)                 |
+        | electronico            | boolean           |        - | Indica si el documento es electrónico.                                      |
+        | direccion_evento       | varchar           |      300 | Dirección del evento del documento (Módulo Adicional).                      |
+        | placa                  | varchar           |       13 | Placa de la persona si es de tipo placa.                                    |
+        | pax                    | int               |        - | Pax del documento (Modulo Adicional).                                       |
+        | anulado                | boolean           |        1 | Indica si el documento esta anulado.                                        |
+        | caja_id                | varchar           |       16 | Identificador de la caja desde la cual se realiza la transacción.           |                             |
+
+      operationId: Consulta
+      parameters:
+        - in: query
+          name: tipo_registro
+          description: CLI:Cliente, PRO:Proveedor
+          schema: 
+            type: string
+        - in: query
+          name: tipo
+          description: FAC:Factura, LQC:Liquidación de compra, PRE:Prefactura, NCT:Nota de Crédito, COT:Cotización, OCV:Orden CompraVenta, NVE:Nota de Venta, DNA:Documento No Autorizado
+          schema: 
+            type: string
+        - in: query
+          name: fecha_modificacion
+          description: Fecha de modificación del documento.
+          schema: 
+            type: date
+        - in: query
+          name: fecha_emision
+          description: Fecha de emisión del documento.
+          schema: 
+            type: date
+        - in: query
+          name: fecha_vencimiento
+          description: Fecha de vencimiento del documento.
+          schema: 
+            type: date
+        - in: query
+          name: fecha_creacion
+          description: Fecha de creación del documento.
+          schema: 
+            type: date
+        - in: query
+          name: persona_identificacion
+          description: Identificación de la persona del documento.
+          schema: 
+            type: string
+        - in: query
+          name: result_size
+          description: Cantidad de resultados por consulta.
+          schema: 
+            type: integer
+        - in: query
+          name: result_page
+          description: Número de página que se quiere obtener.
+          schema: 
+            type: integer
+        - in: query
+          name: fecha_inicial
+          description: Filtro de fecha inicial con respecto a la fecha de emisión.
+          schema: 
+            type: date
+        - in: query
+          name: fecha_final
+          description: Filtro de fecha final con respecto a la fecha de emisión.
+          schema: 
+            type: date
+        - in: query
+          name: persona_id
+          description: Identificación de la persona del documento.
+          schema: 
+            type: string
+        - in: query
+          name: bodega_id
+          description: Filtro apartir de la bodega asociada al documento.
+          schema: 
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Documento"
+        '500':
+          description: Error en el servidor   
+    post:
+      tags:
+        - Documento
+      description: |- 
+        Para crear un documento se debe hacer uso de la url:
+
+        > POST https://api.contifico.com/sistema/api/v2/documento/
+
+        | Parámetro       | Tipo              | Longitud | Descripción                                                                 | Obligatorio |
+        |-----------------|:-----------------:|---------:|-----------------------------------------------------------------------------|:-----------:|
+        | pos             | varchar           |       36 | API Token del POS.                                                          | Si          |
+        | fecha_emision   | date              |        - | Fecha de emisión del documento. (dd/mm/aaaa)                                | Si          |
+        | tipo_documento  | varchar           |        3 | Tipo de registro del documento (FAC: Factura, LQC: Liquidación de Compra, PRE: Prefactura, NCT: Nota de Crédito, COT: Cotización, OCV: Orden CompraVenta, NVE: Nota de Venta, DNA: Documento No Autorizado). | Si |
+        | documento       | varchar           |       17 | Número del documento.                                                       | Si          |
+        | estado          | varchar           |        1 | Indicador del estado del documento (P:pendiente, C:cobrado, G:pagado, A:anulado, E:generado, F:facturado). | No |
+        | autorizacion    | varchar           |       49 | Número de autorización del documento.                                       | Si          |
+        | caja_id         | varchar           |       16 | Identificador de la caja desde la cual se realiza la transacción.           | No          |
+        | cliente         | objeto            |        - | Objeto contenedor del cliente del documento.                                | Si          |
+        | ruc             | varchar           |       13 | RUC de la persona.                                                          | Opcional    |
+        | cedula          | varchar           |       10 | Cédula de la persona.                                                       | Si          |
+        | razon_social    | varchar           |      300 | Razón social de la persona.                                                 | Si          |
+        | telefonos       | varchar           |      300 | Teléfono de la persona.                                                     | No          |
+        | direccion       | varchar           |      300 | Dirección de la persona.                                                    | No          |
+        | tipo            | varchar           |        1 | Tipo de persona (N:Natural, J:Juridica, I:SinId, P:Placa).                  | Si          |
+        | email           | varchar           |       50 | Correo de la persona.                                                       | No          |
+        | es_extranjero   | bool              |        - | Verificador de personas extranjeras.                                        | No          |
+        | Vendedor        | objeto            |        - | Objeto contenedor del vendedor del documento.                               | No          |
+        | descripcion     | text              |        - | Explicación del documento.                                                  | No          |
+        | subtotal_0      | decimal           |       10 | Representa el valor subtotal (8 int, 2 decimal) max.                        | Si          |
+        | subtotal_12     | decimal           |       10 | Representa el valor subtotal del IVA del documento (8 int, 2 decimal) max.  | Si          |
+        | ice             | SmallIntegerField |        - | Valor total de ICE que grava el producto con este impuesto.                 | Si          |
+        | iva             | SmallIntegerField |        - | Valor de porcentaje de IVA que tiene el producto .                          | Si          |
+        | servicio        | decimal           |       10 | Representa el valor del porcentaje de servicio del documento (8 int, 2 decimal) max. | No |
+        | total           | decimal           |       10 | Valor total del movimiento (8 int, 2 decimal) max.                          | Si          |
+        | adicional1      | varchar           |      300 | Dato adicional de la factura.                                               | No          |
+        | adicional2      | varchar           |      300 | Dato adicional de la factura.                                               | No          |
+        | detalles        | objeto            |        - | Objeto contenedor de los ítems facturados del documento.                    | Si          |
+        | producto_id     | varchar           |       16 | Identificador del producto en el sistema.                                   | Si          |
+        | cantidad        | decimal           |       13 | Indica la cantidad del producto en el movimiento (7 int, 6 decimal) max.    | Si          |
+        | precio          | decimal           |       13 | Valor del producto en específico (7 int, 6 decimal) max.                    | Si          |
+        | porcentaje_iva  | SmallIntegerField |        - | Valor de porcentaje de IVA que tiene el producto.                           | No          |
+        | porcentaje_descuento | decimal      |       10 | Representa el valor subtotal del IVA del documento.                         | Si          |
+        | base_cero       | decimal           |       10 | Representa el valor del producto si grava 0% IVA (8 int, 2 decimal).        | Si          |
+        | base_gravable   | decimal           |       10 | Representa el valor del producto si grava 12% IVA (8 int, 2 decimal).       | Si          |
+        | base_no_gravable| decimal           |       10 | Representa el valor del producto si no grava IVA (8 int, 2 decimal).        | Si          |
+        | porcentaje_ice  | SmallIntegerField |        - | Representa el valor porcentual de ICE que grava el producto.                |             |
+        | valor_ice       | decimal           |       10 | Representa el valor entero de ICE que grava el producto.                    |             |
+        | cobros          | objeto            |        - | Objeto contenedor de los cobros del documento.                              | Opcional    |
+        | forma_cobro     | varchar           |       10 | Tipo de documento a aplicar el cobro o pago de la transacción.              | Si          |
+        | monto           | decimal           |       10 | Valor total del documento detalle relacionado (8 int, 2 decimal).           | Si          |
+        | numero_cheque   | varchar           |       15 | Número de cheque en la transacción.                                         | No          |
+        | tipo_ping       | varchar           |        1 | Tipo de transacción con TC (D:datafast, M:medianet, E:dataexpress, P:placetopay, A:alignet). | Si |
+
+      operationId: Creación
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Documento'
+            examples:
+              Cliente:
+                $ref: '#/components/examples/cliente'
+              Proveedor:
+                $ref: '#/components/examples/proveedor'
+              Prefactura:
+                $ref: '#/components/examples/prefactura'
+              NotaCredito:
+                $ref: '#/components/examples/notacredito'
+              Liquidacion:
+                $ref: '#/components/examples/liquidacion'
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Documento"
+        '400':
+          description: Validaciones
+        '500':
+          description: Error en el servidor
+  
+  /api/v2/documento/{id_integracion}:
+    put:
+      tags:
+        - Documento
+      description: |-
+        Para modificar un documento se debe hacer uso de la url:
+        >
+        > PUT https://api.contifico.com/sistema/api/v2/documento/
+        >
+
+        | Parámetro       |        Tipo       | Longitud | Descripción                                                                 | Obligatorio |
+        |-----------------|:-----------------:|:--------:|-----------------------------------------------------------------------------|:-----------:|
+        | pos             | varchar           |       36 | API Token del POS.                                                          | Si          |
+        | fecha_emision   | date              |        - | Fecha de emisión del documento. (dd/mm/aaaa)                                | Si          |
+        | tipo_documento  | varchar           |        3 | Tipo de registro del documento (FAC: Factura, LQC: Liquidación de Compra, PRE: Prefactura, NCT: Nota de Crédito, COT: Cotización, OCV: Orden CompraVenta, NVE: Nota de Venta, DNA: Documento No Autorizado). | Si |
+        | documento       | varchar           |       17 | Número del documento.                                                       | Si          |
+        | estado          | varchar           |        1 | Indicador del estado del documento (P:pendiente, C:cobrado, G:pagado, A:anulado, E:generado, F:facturado). | No |
+        | autorizacion    | varchar           |       49 | Número de autorización del documento.                                       | Si          |
+        | caja_id         | varchar           |       16 | Identificador de la caja desde la cual se realiza la transacción.           | No          |
+        | cliente         | objeto            |        - | Objeto contenedor del cliente del documento.                                | Si          |
+        | ruc             | varchar           |       13 | RUC de la persona.                                                          | Opcional    |
+        | cedula          | varchar           |       10 | Cédula de la persona.                                                       | Si          |
+        | razon_social    | varchar           |      300 | Razón social de la persona.                                                 | Si          |
+        | telefonos       | varchar           |      300 | Teléfono de la persona.                                                     | No          |
+        | direccion       | varchar           |      300 | Dirección de la persona.                                                    | No          |
+        | tipo            | varchar           |        1 | Tipo de persona (N:Natural, J:Juridica, I:SinId, P:Placa).                  | Si          |
+        | email           | varchar           |       50 | Correo de la persona.                                                       | No          |
+        | es_extranjero   | bool              |        - | Verificador de personas extranjeras.                                        | No          |
+        | Vendedor        | objeto            |        - | Objeto contenedor del vendedor del documento.                               | No          |
+        | descripcion     | text              |        - | Explicación del documento.                                                  | No          |
+        | subtotal_0      | decimal           |       10 | Representa el valor subtotal (8 int, 2 decimal) max.                        | Si          |
+        | subtotal_12     | decimal           |       10 | Representa el valor subtotal del IVA del documento (8 int, 2 decimal) max.  | Si          |
+        | ice             | SmallIntegerField |        - | Valor total de ICE que grava el producto con este impuesto.                 | Si          |
+        | iva             | SmallIntegerField |        - | Valor de porcentaje de IVA que tiene el producto.                           | Si          |
+        | servicio        | decimal           |       10 | Representa el valor del porcentaje de servicio del documento (8 int, 2 decimal) max. | No |
+        | total           | decimal           |       10 | Valor total del movimiento (8 int, 2 decimal) max.                          | Si          |
+        | adicional1      | varchar           |      300 | Dato adicional de la factura.                                               | No          |
+        | adicional2      | varchar           |      300 | Dato adicional de la factura.                                               | No          |
+        | detalles        | objeto            |        - | Objeto contenedor de los ítems facturados del documento.                    | Si          |
+        | producto_id     | varchar           |       16 | Identificador del producto en el sistema.                                   | Si          |
+        | cantidad        | decimal           |       13 | Indica la cantidad del producto en el movimiento (7 int, 6 decimal) max.    | Si          |
+        | precio          | decimal           |       13 | Valor del producto en específico (7 int, 6 decimal) max.                    | Si          |
+        | porcentaje_iva  | SmallIntegerField |        - | Valor de porcentaje de IVA que tiene el producto.                           | No          |
+        | porcentaje_descuento | decimal      |       10 | Representa el valor subtotal del IVA del documento.                         | Si          |
+        | base_cero       | decimal           |       10 | Representa el valor del producto si grava 0% IVA (8 int, 2 decimal).        | Si          |
+        | base_gravable   | decimal           |       10 | Representa el valor del producto si grava 12% IVA (8 int, 2 decimal).       | Si          |
+        | base_no_gravable| decimal           |       10 | Representa el valor del producto si no grava IVA (8 int, 2 decimal).        | Si          |
+        | porcentaje_ice  | SmallIntegerField |        - | Representa el valor porcentual de ICE que grava el producto.                |             |
+        | valor_ice       | decimal           |       10 | Representa el valor entero de ICE que grava el producto.                    |             |
+  
+      operationId: Actualización
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Documento'
+            examples:
+              Cliente:
+                $ref: '#/components/examples/cliente'
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Documento"
+        '500':
+          description: Error en el servidor
+
+  /api/v2/documento/estado/{id_integracion}:
+    get:
+      tags:
+        - Documento
+      description: |-
+        > GET https://api.contifico.com/sistema/api/v2/documento/estado/{id_integracion}
+
+        Este servicio permite consultar el estado de un documento electrónico en contifico.
+      operationId: Estado Autorizacion Documento Electronico
+      parameters:
+        - in: path
+          name: id_integracion
+          description: Id de integracion Documento
+          required: true
+          schema: 
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EstadoDocumento"
+        '500':
+          description: Error en el servidor
+
+  /api/v2/documento/{id_integracion}/cobro/:
+    get:
+      tags:
+        - Cobros
+      description: |-
+        Podemos consultar los cobros que tiene un documento de cliente por medio de la url:
+        >
+        > GET https://api.contifico.com/sistema/api/v2/documento/{id_integracion}/cobro/
+        >
+        Usando el id devuelto en la creación de documento.
+
+        | Parámetro          | Tipo    | Longitud | Descripción                                                                 |
+        |--------------------|:-------:|---------:|-----------------------------------------------------------------------------|
+        | forma_cobro        | varchar |       10 | Tipo de documento a aplicar el cobro o pago de la transacción (Ver lista tipos cobro). |
+        | numero_comprobante | varchar |       15 | Secuencia única que identifica la transacción.                              |
+        | caja_id            | varchar |       16 | Identificador de la caja desde la cual se realiza la transacción.           |
+        | monto              | decimal |       10 | Valor total del documento detalle relacionado (8 int, 2 decimal) max.       |
+        | numero_tarjeta     | varchar |       10 | Número de tarjeta bancaria supereasy (Módulo adicional).                    |
+        | fecha              | date    |        - | Fecha que se realiza la transacción. (dd/mm/aaaa)                           |
+        | nombre_tarjeta     | varchar |      300 | Nombre de tarjeta bancaria supereasy (Módulo adicional).                    |
+        | tipo_banco         | char    |      300 | Nombre del banco supereasy (Módulo adicional).                              |
+        | cuenta_bancaria_id | varchar |       16 | Identificador de la cuenta bancaria en el sistema.                          |
+        | bin_tarjeta        | varchar |       10 | Número de tarjeta bancaria supereasy (Módulo adicional).                    |
+        | monto_propina      | decimal |       10 | Representa el valor de la propina por un servicio (8 int, 2 decimal) max.   |
+        | numero_cheque      | varchar |       15 | Número de cheque en la transacción.                                         |
+        | fecha_cheque       | date    |        - | Fecha del cheque. (dd/mm/aaaa)                                              |
+        | tipo_ping          | varchar |        1 | Tipo de transacción con TC (D:datafast, M:medianet, E:dataexpress, P:placetopay, A:alignet). |
+        | id                 | varchar |       16 | Identificador del cobro en el sistema.                                      |
+        | lote               | varchar |       16 | Identificador del lote asociado a la transacción.                           |
+
+      operationId: Consulta
+      parameters:
+        - in: path
+          name: id_integracion
+          description: Id de integración del documento
+          required: true
+          schema: 
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cobro"
+        '500':
+          description: Error en el servidor
+    post:
+      tags:   
+        - Cobros
+      description: |-
+        Se permite registrar cobros a un documento usando la siguiente URL:
+
+        > POST https://api.contifico.com/sistema/api/v2/documento/{id_integracion}/cobro/
+
+        | Parámetro          | Tipo    | Longitud | Descripción                                                                 | Obligatorio |
+        |--------------------|:-------:|---------:|-----------------------------------------------------------------------------|:-----------:|
+        | forma_cobro        | varchar |       10 | Tipo de documento a aplicar el cobro o pago de la transacción (Ver lista tipos cobro). | Si          |
+        | monto              | decimal |       10 | Valor total del documento detalle relacionado (8 int, 2 decimal) max.       | Si          |
+        | fecha              | date    |        - | Fecha que se realiza la transacción. (dd/mm/aaaa)                           | No          |
+        | tipo_ping          | varchar |        1 | Tipo de transacción con TC (D:datafast, M:medianet, E:dataexpress, P:placetopay, A:alignet). | Si          |
+        | numero_cheque      | varchar |       15 | Número de cheque en la transacción.                                         | No          |
+        | cuenta_bancaria_id | varchar |       16 | Id de la cuenta bancaria.                                                   | No          |
+        | numero_comprobante | varchar |       15 | Secuencia única que identifica la transacción.                              | No          |
+        
+      operationId: Creación
+      parameters:
+        - in: path
+          name: id_integracion
+          description: Id de integración del documento
+          required: true
+          schema: 
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Cobro'
+            examples:
+              Efectivo:
+                $ref: '#/components/examples/efectivo'
+              Tarjeta:
+                $ref: '#/components/examples/tarjeta'
+              Transferencia:
+                $ref: '#/components/examples/transferencia'
+              Cheque:
+                $ref: '#/components/examples/cheque'
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cobro"
+        '500':
+          description: Error en el servidor
+  
+  /api/v2/banco/cuenta/:
+    get:
+      tags:
+        - Cuentas Bancarias
+      description: |-
+        > GET https://api.contifico.com/sistema/api/v2/banco/cuenta/
+
+        Devuelve un listado con todas las cuentas bancarias creadas en el sistema
+
+        | Parámetro     | Tipo    | Longitud | Descripción                                                                 |
+        |---------------|:-------:|---------:|-----------------------------------------------------------------------------|
+        | id            | varchar |       16 | Identificador de la cuenta bancaria en el sistema                           |
+        | saldo_inicial | decimal |       12 | Valor con el cual inicia la cuenta bancaria (10 int, 2 decimal) max.        |
+        | numero        | varchar |       20 | Número de la cuenta bancaria.                                               |
+        | tipo_cuenta   | varchar |        2 | Define el tipo de cuenta bancaria (CC:cuenta corriente, CA:cuenta de ahorros). |
+        | fecha_corte   | date    |        - | Fecha a la cual se realiza el corte de la cuenta bancaria. (dd/mm/aaaa)     |
+        | nombre        | varchar |      300 | Nombre de la cuenta bancaria.                                               |
+        | estado        | varchar |        1 | Estado actual de la cuenta bancaria (A:activo, I:inactivo).                 |
+        |cuenta_contable| varchar |      300 | Nombre de la cuenta contable.                                               |
+        | nombre_banco  | varchar |      300 | Nombre del banco.                                                           |
+
+      operationId: Consulta
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CuentaBancaria"
+        
+  /api/v2/banco/cuenta/{id_integracion}/:
+    get:
+      tags:
+        - Cuentas Bancarias
+      description: |- 
+        > GET https://api.contifico.com/sistema/api/v2/banco/cuenta/{id_integracion}/
+
+        Devuelve una cuenta contable con el id solicitado.
+
+        | Parámetro     | Tipo    | Longitud | Descripción                                                                 |
+        |---------------|:-------:|---------:|-----------------------------------------------------------------------------|
+        | id            | varchar |       16 | Identificador de la cuenta bancaria en el sistema                           |
+        | saldo_inicial | decimal |       12 | Valor con el cual inicia la cuenta bancaria (10 int, 2 decimal) max.        |
+        | numero        | varchar |       20 | Número de la cuenta bancaria.                                               |
+        | tipo_cuenta   | varchar |        2 | Define el tipo de cuenta bancaria (CC:cuenta corriente, CA:cuenta de ahorros). |
+        | fecha_corte   | date    |        - | Fecha a la cual se realiza el corte de la cuenta bancaria. (dd/mm/aaaa)     |
+        | nombre        | varchar |      300 | Nombre de la cuenta bancaria.                                               |
+        | estado        | varchar |        1 | Estado actual de la cuenta bancaria (A:activo, I:inactivo).                 |
+        |cuenta_contable| varchar |      300 | Nombre de la cuenta contable.                                               |
+        | nombre_banco  | varchar |      300 | Nombre del banco.                                                           |
+
+      operationId: Obtener una cuenta bancaria
+      parameters:
+        - in: path
+          name: id_integracion
+          description: Id de integracion de la cuenta bancaria
+          required: true
+          schema: 
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CuentaBancaria"
+
+  /api/v2/documento/{id_integracion}/forma_pago:
+    get:
+      tags:
+        - Formas de Pago
+      description: |-
+        Consulta las formas de cobro/pago de un documento, ya sea tipo cliente o proveedor 
+
+        > GET https://api.contifico.com/sistema/api/v2/documento/{id_integracion}/forma_pago
+
+        | Parámetro  | Tipo    | Longitud | Descripción                             |
+        |------------|---------|----------|-----------------------------------------|
+        | forma_pago | varchar |       4  | Indica la forma que se realiza el pago. |
+        | plazo      | integer |       -  | Tiempo días para el pago del Documento. |
+        | unidad     | varchar |       2  | Unidad de tiempo del plazo para el pago.|
+        | valor      | decimal |       10 | Valor final del pago. (8 int, 2 decimal)|
+
+      operationId: Consulta
+      parameters:
+        - in: path
+          name: id_integracion
+          description: Id de integracion del documento
+          required: true
+          schema: 
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FormaPago"
+
+  /api/v2/empresa/parametros:
+    get:
+      tags:
+        - Parametros
+      description: |-
+        Devuelve un listado de los parametros que tiene la empresa.
+
+        > GET https://api.contifico.com/sistema/api/v2/empresa/parametros
+
+        | Parámetro | Tipo    | Longitud | Descripción          |
+        |-----------|---------|----------|----------------------|
+        | nombre    | varchar |       4  | Nombre del parametro.|
+        | tipo      | varchar |       -  | Tipo del parametro.  |
+        | valor     | varchar |       10 | Valor del parametro. |
+
+      operationId: Consulta 
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Parametro"
+
+  /api/v2/unidad/:
+    get:
+      tags:
+        - Unidad
+      description: |-
+        Devuelve un listado con todas las unidades que existen.
+
+        > GET https://api.contifico.com/sistema/api/v2/unidad/.
+
+        | Parámetro | Tipo    | Longitud | Descripción          |
+        |-----------|---------|----------|----------------------|
+        | nombre    | varchar |      100 | Nombre de la unidad. |
+        | id        | varchar |       16 | Id de la unidad.     |
+
+      operationId: Consulta
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Unidad"
+
+  /api/v2/unidad/{id_integracion}:
+    get:
+      tags:
+        - Unidad
+      description: |-
+        Devuelve una unidad con el id de integracion.
+
+        > GET https://api.contifico.com/sistema/api/v2/unidad/{id_integracion}.
+
+        | Parámetro | Tipo    | Longitud | Descripción          |
+        |-----------|---------|----------|----------------------|
+        | nombre    | varchar |      100 | Nombre de la unidad. |
+        | id        | varchar |       16 | Id de la unidad.     |
+
+      operationId: Obtener una unidad
+      parameters:
+        - in: path
+          name: id_integracion
+          description: Id de integracion de la unidad
+          required: true
+          schema: 
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Unidad"
+
+components:
+  securitySchemes:
+    API_KEY:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: API_KEY del POS
+
+  schemas:
+    Asiento:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+          description: id_integracion.
+          example: GOjZdyPoooTybJ4m
+        detalles:
+            $ref: '#/components/schemas/DetalleAsiento'
+        glosa:
+          type: string
+          description: Glosa.
+          example: Ver si genera asiento
+        gasto_no_deducible:
+          type: boolean
+          writeOnly: true
+          description: Gasto no deducible.
+          example: 0
+        prefijo:
+          type: string
+          writeOnly: true
+          description: NOM:asiento de nomina, ASI:asiento manual.
+          example: ASI
+        fecha:
+          type: date
+          description: Fecha (dd/mm/aaaa).
+          example: 16/05/2017
+      required:
+        - fecha
+        - glosa
+        - gasto_no_deducible
+        - prefijo
+        - detalles
+        - cuenta_id
+        - valor
+        - tipo
+
+    DetalleAsiento:
+      type: object
+      properties:
+        cuenta_id:
+          type: string
+          description: id_integracion Cuenta.
+          example: MZN5wbojDFXaxEO0
+        centro_costo_id:
+          type: string
+          description: id_integracion Centro de costos.
+          example: EGOjZdy8yUNbJ4mz
+        tipo:
+          type: string
+          description: Tipo de detalle D:Debe H:Haber.
+          example: D
+        valor:
+          type: decimal
+          description: Valor monetario del detalle (7 int, 6 decimal)max.
+          example: 10
+
+    Persona:
+      properties:
+        id: 
+          type: string
+          description: id_integracion Persona
+          readOnly: true
+          example: kpKBe132YC6zbXyO
+        ruc: 
+          type: string
+          description: RUC
+          example: 0926518754001
+        cedula: 
+          type: string
+          description: Cédula
+          example: 0920079902
+        placa: 
+          type: string
+          description: Placa
+          example: null
+        razon_social: 
+          type: string
+          description: Nombre o Razón social
+          example: Camilo Mesa
+        telefonos: 
+          type: string
+          description: Telefonos
+          example: 2837883
+        direccion: 
+          type: string
+          description: Dirección
+          example: urb. el rio villa
+        tipo: 
+          type: string
+          description: Tipo de persona N:Natural J:Juridica I:SinId P:Placa
+          example: N
+        es_cliente:
+          type: boolean
+          description: Rol cliente 
+          example: true
+        es_proveedor: 
+          type: boolean
+          description: Rol proveedor
+          example: false
+        es_empleado: 
+          type: boolean
+          description: Rol empleado
+          example: false
+        es_corporativo: 
+          type: boolean
+          description: Rol corporativo
+          example: false
+        aplicar_cupo: 
+          type: boolean
+          description: Verificador si la persona tiene un cupo máximo como cliente.
+          example: true
+        email: 
+          type: string
+          description: Correo electrónico
+          example: infocontifico@contifico.com
+        es_vendedor: 
+          type: boolean
+          description: Rol vendedor
+          example: false
+        es_extranjero: 
+          type: boolean
+          description: Verificador de personas extranjeras.
+          example: false
+        porcentaje_descuento: 
+          type: decimal
+          description: Descuento de tipo cliente
+          example: 0.0
+        adicional1_cliente: 
+          type: string
+          description: Información adicional del cliente.
+          example: ""
+        adicional2_cliente: 
+          type: string
+          description: Información adicional del cliente
+          example: ""
+        adicional3_cliente: 
+          type: string
+          description: Información adicional del cliente
+          example: ""
+        adicional4_cliente: 
+          type: string
+          description: Información adicional del cliente
+          example: ""
+        adicional1_proveedor: 
+          type: string
+          description: Información adicional del proveedor
+          example: ""
+        adicional2_proveedor: 
+          type: string
+          description: Información adicional del proveedor
+          example: ""
+        adicional3_proveedor: 
+          type: string
+          description: Información adicional del proveedor
+          example: ""
+        adicional4_proveedor: 
+          type: string
+          description: Información adicional del proveedor
+          example: ""
+        banco_codigo_id: 
+          type: string
+          description: Código de banco asociado a la persona.
+          example: null
+        tipo_cuenta: 
+          type: string
+          description: Tipo de la cuenta contable asociada.
+          example: null
+        numero_tarjeta: 
+          type: string
+          description: Número de tarjeta de la persona.
+          example: null
+        personaasociada_id: 
+          type: string
+          description: Id de la persona asociada
+          example: null
+        nombre_comercial: 
+          type: string
+          description: Nombre comercial
+          example: ""
+        origen: 
+          type: string
+          description: Tipo de POS desde el cual se registro.
+          example: null
+        pvp_default: 
+          type: decimal
+          multipleOf: 0.01
+          description: PVP default
+          example: null
+        categoria_id: 
+          type: string
+          description: Identificador de la categoría persona
+          example: null
+        categoria_nombre:
+          type: string
+          description: Nombre de la categoría asociada a la persona.
+          example: null
+        fecha_modificacion: 
+          type: date
+          readOnly: true
+          description: Fecha de modificación asociada a la persona.
+          example: "2026-02-18T11:12:08"
+        sueldo: 
+          type: decimal
+          description: Sueldo asociado a la persona
+          example: null
+        dias_credito: 
+          type: string
+          readOnly: true
+          description: Dias credito asociado a la persona
+          example: null
+        cupo_credito: 
+          type: string
+          readOnly: true
+          description: Cupo de credito asociado a la persona
+          example: null
+        vendedor_asignado:
+          type: array
+          readOnly: true
+          description: Vendedor asociado a la persona
+          example: 
+            "id": "k0pZeV0BnYcPbGWX"
+            "nombre": "prueba lm 07 sas"
+            
+      required:
+        - tipo
+        - razon_social
+        - es_cliente
+        - es_proveedor
+        - cedula
+
+    Categoria:
+      properties:
+        id: 
+          type: string
+          description: Id de integracion Categoria
+          readOnly: true
+          example: 7DkPbkDBHkWd5Y9L
+        nombre: 
+          type: string
+          description: Nombre de la categoría
+          example: BOTAS
+      required:
+        - nombre
+
+    Bodega:
+      properties:
+        venta: 
+          type: boolean
+          description: Indica si la bodega está marcada para la venta.
+          example: true
+        produccion: 
+          type: boolean
+          description: Indica si la bodega está marcada para producción.
+          example: true
+        compra: 
+          type: boolean
+          description: Indica si la bodega está marcada para la compra.
+          example: true
+        nombre: 
+          type: string
+          description: Nombre de la bodega
+          example: Bodega Principal
+        codigo: 
+          type: string
+          description: Código de la bodega
+          example: BOD001
+        id: 
+          type: string
+          description: Id de integracion Bodega
+          example: nRMdROzqhvDZel6Y
+    
+    Producto:
+      properties:
+        id: 
+          type: string
+          readOnly: true
+          description: Id de integracion Producto
+          example: ZN5wbo2vLhoqaxEO
+        unidad:
+          type: string
+          description: Id de integracion de la unidad del producto
+          example: ZN5wbolAFoqdxEO0
+        codigo: 
+          type: string
+          description: Código del producto
+          example: 1134
+        tipo_producto: 
+          type: string
+          description: SIM:simple, COM:combo, COP:compuesto, PRO:produccion
+          example: SIM
+        para_pos: 
+          type: boolean
+          description: Variable de control para determina si el producto se utiliza en POS.
+          example: true
+        nombre: 
+          type: string
+          description: Nombre del producto
+          example: 1134
+        codigo_auxiliar:
+          type: string
+          description: Codigo auxiliar del producto
+          example: null
+        codigo_barra: 
+          type: string
+          description: Código de barra
+          example: ""
+        categoria_id: 
+          type: string
+          description: Id de integracion Categoria
+          example: k0pZeVAzu4wdGWXQ
+        marca_id: 
+          type: string
+          description: Id de integracion Marca
+          example: null
+        marca_nombre: 
+          type: string
+          description: Nombre de la marca 
+          example: null
+        porcentaje_iva: 
+          type: decimal
+          description: Porcentaje de iva
+          example: 5
+        pvp1: 
+          type: decimal
+          description: PVP 1 (7 int, 6 decimal)max.
+          example: null
+        pvp2: 
+          type: decimal
+          description: PVP 2 (7 int, 6 decimal)max.
+          example: null
+        pvp3: 
+          type: decimal
+          description: PVP 3 (7 int, 6 decimal)max.
+          example: null
+        pvp4: 
+          type: decimal
+          description: PVP 4 (7 int, 6 decimal)max.
+          example: null
+        minimo: 
+          type: decimal
+          description: Valor mínino de stock que debe estar disponible (7 int, 6 decimal)max.
+          example: 0.0
+        cantidad_stock: 
+          type: string
+          readOnly: true
+          description: Stock del producto.
+          example: 104.0
+        estado: 
+          type: string
+          description: Estado del producto
+          example: A
+        pvp_manual: 
+          type: boolean
+          description: Precio manual
+          example: true
+        imagen: 
+          type: array
+          readOnly: true
+          description: Imagen del producto
+          example: ""
+        descripcion: 
+          type: string
+          description: Descripción del producto
+          example: ""
+        personalizado1: 
+          type: string
+          description: Información adicional del producto
+          example: ""
+        personalizado2: 
+          type: string
+          description: Información adicional del producto
+          example: ""
+        tipo: 
+          type: string
+          description: PRO:Producto, SER:Servicio
+          example: PRO
+        producto_base_id: 
+          type: string
+          readOnly: true
+          description: Id del producto padre
+          example: null
+        nombre_producto_base: 
+          type: string
+          readOnly: true
+          description: Nombre del producto padre
+          example: null
+        variantes: 
+          type: array
+          readOnly: true
+          description: Variante
+          example: null
+        pvp_peso: 
+          type: decimal
+          description: Valor de venta de peso para balanza (7 int, 6 decimal)max.
+          example: null
+        peso_desde: 
+          type: decimal
+          description: Valor de peso inicial para balanza
+          example: null
+        peso_hasta: 
+          type: decimal
+          description: Valor de peso final para balanza
+          example: null
+        cuenta_venta_id: 
+          type: string
+          description: Id de integracion de la cuenta de venta
+          example: ljMEegoqlUg0eQ5g
+        cuenta_compra_id: 
+          type: string
+          description: Id de integracion de la cuenta de compra
+          example: 6x01dNwRzhnleX7W
+        cuenta_costo_id: 
+          type: string
+          description: Id de integración de la cuenta de costo.
+          example: k0pZeVGqBh4waGWX
+        costo_maximo: 
+          type: decimal
+          description: Valor de costo máximo que puede tener el producto (7 int, 6 decimal).
+          example: 0.0
+        fecha_creacion: 
+          type: date
+          readOnly: true
+          description: Fecha de creación del producto (dd/mm/aaaa)
+          example: 22/04/2024
+        codigo_proveedor: 
+          type: string
+          description: Código utilizado para catálogo de productos.
+          example: null
+        lead_time: 
+          type: integer
+          readOnly: true
+          description: Tiempo estimado para recepción de producto desde su solicitud.
+          example: 0
+        generacion_automatica: 
+          type: boolean
+          readOnly: true
+          description: Variable de control para determinar si el producto se utiliza en Orden de Compra.
+          example: false
+        id_integracion_proveedor: 
+          type: string
+          readOnly: true
+          description: Identificador de la persona proveedor en el sistema.
+          example: null
+        detalle_variantes:
+          type: array
+          readOnly: true
+          description: Objeto contenedor de las variantes del producto.
+          example: []
+        porcentaje_ice:
+          type: decimal
+          description: Porcentaje ICE del producto
+          example: null
+        valor_ice:
+          type: decimal
+          description: Valor ICE del producto
+          example: null
+        campo_catalogo:
+          type: string
+          description: Texto adicional utilizado para mostrar en los catalagos de productos.
+          example: ""
+        maneja_nombremanual:
+          type: boolean
+          description: Indica si maneja nombre manual
+          example: false
+        porcentaje_servicio:
+          type: boolean
+          description: Indica si el producto maneja porcentaje de servicio
+          example: false
+
+      required:
+        - minimo
+        - pvp1
+        - nombre
+        - estado
+        - codigo
+        
+    Stock:
+      properties:
+        bodega_nombre: 
+          type: string
+          description: Nombre de la Bodega
+          example: Bodega Principal
+        bodega_id: 
+          type: string
+          description: Id de integracion de la Bodega
+          example: BQ9pdBB26H52d8KE
+        cantidad: 
+          type: decimal
+          description: Cantidad actual del producto en la bodega (7 int, 6 decimal)max.
+          example: 5
+
+    MovimientoInventario:
+      properties:
+        id: 
+          type: string
+          description: Id de integracion del Movimiento de Inventario
+          readOnly: true
+          example: xgArb6BOLH3ObyR7
+        pos: 
+          type: string
+          description: Id de integracion del POS
+          example: 0oMrb6BOpH3ObyR3
+        bodega_id: 
+          type: string
+          description: Id de integracion de la bodega
+          example: mxGge0gNTEodADR5
+        codigo: 
+          type: string
+          description: Código del movimiento de Inventario
+          example: ING 202608000013
+        codigo_interno: 
+          type: string
+          description: Código interno
+          example: null
+        fecha: 
+          type: date
+          description: Fecha del movimiento de Inventario (dd/mm/aaaa)
+          example: 04/08/2026
+        tipo: 
+          type: string
+          description: ING:ingreso, EGR:egreso, TRA:traslado, AJU:ajuste de costo
+          example: ING
+        descripcion: 
+          type: string
+          description: Descripción del movimiento de Inventario
+          example: prueba
+        total: 
+          type: decimal
+          description: Valor total del movimiento (8 int, 2 decimal)max.
+          example: 0.0
+        detalles: 
+          $ref: '#/components/schemas/DetalleInventario'
+        estado: 
+          type: string
+          description: G:generado, P:pendiente
+          example: G
+        bodega_destino_id: 
+          type: string
+          description: Id de integracion de la bodega destino 
+          example: null
+        maneja_venta: 
+          type: boolean
+          description: Indica si maneja_venta
+          example: null
+        generar_asiento: 
+          type: boolean
+          description: Indica si el movimiento se marco para generar un asiento
+          example: false
+        cuenta_id: 
+          type: string
+          description: Id de la cuenta contable
+          example: null
+        proyecto:
+          type: string
+          description: Código del proyecto
+          example: null
+      required:
+        - bodega_id
+        - tipo
+        - fecha
+        - detalles
+        - descripcion
+        
+    DetalleInventario:
+      properties:
+        cantidad: 
+          type: decimal
+          description: Cantidad (7 int, 6 decimal)max.
+          example: 1.0
+        producto_id: 
+          type: string
+          description: Id de integracion
+          example: RZxgepYRySlMa1pV
+        precio: 
+          type: decimal
+          description: Precio (7 int, 6 decimal)max.
+          example: 0.0
+        serie: 
+          type: string
+          description: Serie
+          example: null
+        edicion: 
+          type: boolean
+          description: Edición
+          example: null
+      required:
+        - producto_id
+        - cantidad
+
+    Documento:
+      properties:
+        "id": 
+          type: string
+          readOnly: true
+          description: Id de integración del documento
+          example: "8J0yel9lMS9naER7"
+        "pos": 
+          type: string
+          description: Api token del POS
+          example: "883bab80-5352-4f14-8fd8-f0cd7d43a861"
+        "fecha_creacion": 
+          type: date
+          readOnly: true
+          description: Fecha de creación del documento (dd/mm/aaaa)
+          example: "20/11/2025"
+        "fecha_emision": 
+          type: date
+          description: Fecha de emisión del documento (dd/mm/aaaa)
+          example: "20/11/2025"
+        "hora_emision": 
+          type: string
+          description: Hora de emisión del documento
+          example: "12:53"
+        "tipo_documento": 
+          type: string
+          description: FAC:Factura, LQC:Liquidación de compra, PRE:Prefactura, NCT:Nota de crédito, COT:Cotizacion, OCV:ORDENCOMPRAVENTA, NVE:Nota de venta, DNA:Documento No Autorizado
+          example: "FAC"
+        "tipo_registro": 
+          type: string
+          description: CLI:Cliente, PRO:Proveedor
+          example: "CLI"
+        "documento": 
+          type: string
+          description: Número del documento
+          example: "001-500-000009013"
+        "estado": 
+          type: string
+          description: P:Pendiente, C:Cobrado, G:Pagado, A:Anulado, E:Generado, F:Facturado
+          example: "P"
+        "anulado": 
+          type: boolean
+          description: Indica si el documento está anulado.
+          example: false
+        "autorizacion": 
+          type: string
+          description: Número de autorización
+          example: "123123123124"
+        "caja_id": 
+          type: string
+          description: Id de integración de la caja
+          example: null
+        "persona_id": 
+          type: string
+          readOnly: true
+          description: Id de integracion de la persona
+          example: "lwKe5RPPKcnja31R"
+        "persona": 
+          $ref: '#/components/schemas/Persona'
+        "vendedor": 
+          type: array
+          description: Vendedor
+          readOnly: true
+          example: null
+        "vendedor_id": 
+          type: string
+          description: Id de integracion del vendedor
+          readOnly: true
+          example: null
+        "vendedor_identificacion": 
+          type: string
+          description: Identificación del vendedor
+          readOnly: true
+          example: null
+        "descripcion": 
+          type: string
+          description: Descripción del documento
+          example: "PRUEBA API v2 numero_comprobante"
+        "subtotal_0": 
+          type: decimal
+          description: Subtotal IVA 0 (13 int, 5 decimal).
+          example: "18.0"
+        "subtotal_12": 
+          type: decimal
+          description: Subtotal IVA (10 int, 2 decimal).
+          example: "0.0"
+        "subtotal": 
+          type: decimal
+          description: Subtotal IVA (10 int, 2 decimal).
+          example: "0.0"
+        "iva": 
+          type: decimal
+          description: IVA (13 int, 5 decimal).
+          example: "0.0"
+        "ice": 
+          type: decimal
+          description: ICE (13 int, 5 decimal).
+          example: "0.0"
+        "servicio": 
+          type: decimal
+          description: Servicio (13 int, 5 decimal).
+          example: "0.0"
+        "total": 
+          type: decimal
+          description: Total del documento (13 int, 5 decimal).
+          example: "18.0"
+        "saldo": 
+          type: decimal
+          description: Saldo del documento (13 int, 5 decimal).
+          readOnly: true
+          example: "7.0"
+        "saldo_anticipo": 
+          type: decimal
+          description: Saldo de anticipo (10 int, 2 decimal).
+          readOnly: true
+          example: "0.0"
+        "adicional1": 
+          type: string
+          description: Información adicional del documento
+          example: ""
+        "adicional2": 
+          type: string
+          description: Información adicional del documento
+          example: ""
+        "detalles": 
+          $ref: '#/components/schemas/BienServicioDocumento'
+        "cobros": 
+          $ref: '#/components/schemas/Cobro'
+        "documento_relacionado_id": 
+          type: string
+          description: Id de integración del documento relacionado
+          example: null
+        "reserva_relacionada": 
+          type: string
+          description: Reserva relacionada
+          example: null
+        "url_": 
+          type: string
+          description: Url
+          readOnly: true
+          example: null
+        "tarjeta_consumo_id": 
+          type: string
+          description: Id de integración de la tarjeta de consumo
+          readOnly: true
+          example: null
+        "url_ride": 
+          type: string
+          description: URL del RIDE del documento
+          readOnly: true
+          example: null
+        "url_xml": 
+          type: string
+          description: URL del XML del documento
+          readOnly: true
+          example: null
+        "referencia": 
+          type: string
+          description: Dato adicional de la factura.
+          example: ""
+        "entregado": 
+          type: boolean
+          description: Indica si el documento ha sido entregado.
+          readOnly: true
+          example: true
+        "electronico": 
+          type: boolean
+          description: Indica si el documento es electrónico
+          example: false
+        "logistica": 
+          type: boolean
+          description: Indicador si el documento está marcado para logística
+          readOnly: true
+          example: null
+        "fecha_vencimiento": 
+          type: date
+          readOnly: true
+          description: Fecha de vencimiento del documento
+          example: "20/11/2025"
+        "tipo_descuento": 
+          type: string
+          description: Tipo de descuento que tiene asignado el documento (P:porcentual, U:unitario).
+          readOnly: true
+          example: null
+        "placa": 
+          type: string
+          description: Placa de la persona si es de tipo placa.
+          readOnly: true
+          example: null
+        "firmado": 
+          type: boolean
+          description: Indicador si el documento está firmado.
+          readOnly: true
+          example: false
+        "fecha_evento": 
+          type: date
+          description: Fecha evento del documento
+          readOnly: true
+          example: null
+        "hora_evento": 
+          type: string
+          description: Hora del evento
+          readOnly: true
+          example: null
+        "direccion_evento": 
+          type: string
+          description: Dirección del evento
+          readOnly: true
+          example: null
+        "pax": 
+          type: string
+          description: Pax del documento
+          readOnly: true
+          example: null
+        "tipo_domicilio": 
+          type: string
+          description: Campo para asociacion de delivery del documento (UB:uber, GL:glovo)
+          readOnly: true
+          example: null
+        "orden_domicilio_id": 
+          type: string
+          description: Id de la orden de delivery
+          readOnly: true
+          example: null
+        "autorizado_sri": 
+          type: boolean
+          readOnly: true
+          description: Indica si el documento está autorizado en el SRI
+          example: false
+        "enviado_sri": 
+          type: boolean
+          readOnly: true
+          description: Indica si el documento fue enviado al SRI
+          example: false
+        "correo_enviado": 
+          type: boolean
+          readOnly: true
+          description: Indica si el documento fue enviado al correo del cliente
+          example: false
+        "retencion_autorizado_sri": 
+          type: boolean
+          readOnly: true
+          description: Indica si la retencion está autorizada en el SRI
+          example: false
+        "retencion_firmado": 
+          type: boolean
+          readOnly: true
+          description: Indica si la retencion está firmada
+          example: false
+        "retencion_enviado_sri": 
+          type: boolean
+          readOnly: true
+          description: Indica si la retencion ha sido enviada al SRI
+          example: false
+        "retencion_correo_enviado": 
+          type: boolean
+          readOnly: true
+          description: Indica si la retencion fue enviada al correo del cliente
+          example: false
+      required:
+        - pos
+        - fecha_emision
+        - tipo_documento
+        - documento
+        - autorizacion
+        - subtotal_0
+        - subtotal_12
+        - ice
+        - iva
+        - total
+        - detalles
+        - descripcion
+        - referencia
+        - tipo_registro
+    
+    BienServicioDocumento:
+      properties:
+        "cuenta_id": 
+          type: string
+          description: Id de la cuenta
+          example: null
+        "centro_costo_id": 
+          type: string
+          description: Id del centro de costo
+          readOnly: true
+          example: "7DkPbkZvhLWa5Y9L"
+        "producto_id": 
+          type: string
+          description: Id de integración del Producto
+          example: "P1mBdJ6Eys4rd0J6"
+        "producto_nombre": 
+          type: string
+          description: Nombre del producto
+          readOnly: true
+          example: "pruebaiva5"
+        "cantidad": 
+          type: decimal
+          description: Indica la cantidad del producto en el movimiento (7 int, 6 decimal)max.
+          example: "2.0"
+        "precio": 
+          type: decimal
+          description: Valor del producto en especifico (7 int, 6 decimal)max.
+          example: "9.0"
+        "porcentaje_descuento": 
+          type: decimal
+          description: Porcentaje de descuento
+          example: "0.0"
+        "porcentaje_iva": 
+          type: decimal
+          description: Porcentaje de IVA
+          example: 0
+        "porcentaje_ice": 
+          type: decimal
+          description: Porcentaje ICE
+          example: "0.0"
+        "valor_ice": 
+          type: decimal
+          description: Valor ICE
+          example: "0.0"
+        "base_cero": 
+          type: decimal
+          description: Representa el valor del producto si grava 0% iva (8 int, 2 decimal).
+          example: "18.0"
+        "base_gravable": 
+          type: decimal
+          description: Representa el valor del producto si grava iva (8 int, 2 decimal).
+          example: "0.0"
+        "base_no_gravable": 
+          type: decimal
+          description: Representa el valor del producto si no grava iva (8 int, 2 decimal).
+          example: "0.0"
+        "serie": 
+          type: string
+          description: Serie
+          example: null
+        "descripcion": 
+          type: string
+          description: Descripción
+          example: "pruebaiva5"
+        "color_id": 
+          type: string
+          description: Id de integración del color
+          example: null
+        "formula":
+          type: array
+          description: Formúla del producto
+          example: []
+        "formula_asociada": 
+          type: array
+          description: Formúla asociada
+          example: null
+        "nombre_manual": 
+          type: string
+          description: Nombre manual
+          example: null
+        "peso": 
+          type: decimal
+          description: Peso
+          example: null
+        "volumen": 
+          type: decimal
+          description: Volumen
+          example: null
+        "adicional1": 
+          type: string
+          description: Información adicional del producto
+          example: "pruebaiva5"
+        "codigo_bien": 
+          type: string
+          description: Código del bien servicio
+          example: null
+        "personas_asociadas": 
+          type: string
+          description: Id de las personas asociadas
+          example: null
+        "promocion_integracionId": 
+          type: string
+          description: Id de integracion de promocion 
+          example: null
+        "ibpnr": 
+          type: decimal
+          description: IBPNR
+          example: "0.0"
+      required:
+        - base_cero
+        - base_gravable
+        - base_no_gravable
+        - precio
+        - cantidad
+
+    Cobro:
+      properties:
+        "id": 
+          type: string
+          description: Id de integración del cobro
+          readOnly: true
+          example: "291qdG6OQtyYbN8j"
+        "caja_id": 
+          type: string
+          description: Id de integración de la caja
+          example: null
+        "forma_cobro": 
+          type: string
+          description: EF:Efectivo, CQ:Cheque, TC:Tarjeta de Crédito, TRA:Transferencia
+          example: "TC"
+        "monto": 
+          type: decimal
+          description: Valor total del documento detalle relacionado (8 int, 2 decimal)max.
+          example: "0.9"
+        "cuenta_bancaria_id": 
+          type: string
+          description: Id de integración de la cuenta bancaria
+          example: null
+        "numero_comprobante": 
+          type: string
+          description: Número de comprobante
+          example: "TC"
+        "numero_cheque": 
+          type: string
+          description: Número de Cheque
+          example: null
+        "numero_tarjeta": 
+          type: string
+          description: Número de tarjeta bancaria supereasy
+          readOnly: true
+          example: null
+        "lote": 
+          type: string
+          description: Lote
+          example: null
+        "tipo_ping": 
+          type: string
+          description: D:Datafast, M:Medianet, E:Dataexpress, P:Placetopay
+          example: null
+        "fecha": 
+          type: date
+          description: Fecha del cobro (dd/mm/aaaa)
+          example: "20/11/2025"
+        "monto_propina": 
+          type: string
+          description: Monto de la propina
+          example: null
+        "bin_tarjeta": 
+          type: string
+          description: Bin de la tarjeta bancaria supereasy
+          readOnly: true
+          example: null
+        "nombre_tarjeta": 
+          type: string
+          description: Nombre de tarjeta bancaria supereasy
+          readOnly: true
+          example: null
+        "tipo_banco": 
+          type: string
+          description: Nombre del banco supereasy
+          example: null
+        "fecha_cheque": 
+          type: date
+          description: Fecha del Cheque (dd/mm/aaaa)
+          example: null
+      required:
+        - forma_cobro
+        - monto
+
+    CuentaBancaria:
+      properties:
+        "id": 
+          type: string
+          description: Id de la cuenta bancaria
+          example: "BQ9pdBZ3tD6d8KEN"
+        "saldo_inicial": 
+          type: decimal
+          description: Valor con el cual inicia la cuenta bancaria (10 int, 2 decimal)max.
+          example: "100.0"
+        "numero": 
+          type: string
+          description: Número de la cuenta bancaria.
+          example: "1204567890"
+        "tipo_cuenta": 
+          type: string
+          description: Define el tipo de cuenta bancaria (CC:cuenta corriente, CA:cuenta de ahorros).
+          example: "CA"
+        "cuenta_contable": 
+          type: string
+          description: Nombre de la cuenta contable
+          example: "Banco prueba"
+        "fecha_corte": 
+          type: date
+          description: Fecha a la cual se realiza el corte de la cuenta bancaria.
+          example: "14/08/2014"
+        "nombre": 
+          type: string
+          description: Nombre de la cuenta bancaria
+          example: "CTA PACIFICO"
+        "estado": 
+          type: string
+          description: Estado de actual de la cuenta bancaria (A:activo, I:inactivo).
+          example: "A"
+        "nombre_banco": 
+          type: string
+          description: Nombre del banco
+          example: "BAC INTERNATIONAL BANK"
+
+    EstadoDocumento:
+      properties:
+        "documento_id": 
+          type: string
+          description: Id de integración Documento
+          example: "MRYWb4j7ViRmeZ1m"
+        "tipo_registro":
+          type: string
+          description: Tipo de registro (CLI:Cliente, PRO:Proveedor) 
+          example: "CLI"
+        "tipo_documento": 
+          type: string
+          description: Tipo de documento (FAC:Factura, LQC:Liquidación de compra)
+          example: "FAC"
+        "estado": 
+          type: string
+          description: Firmado, Enviado a SRI, Autorizado, No Firmado
+          example: "Autorizado"
+
+    FormaPago:
+      properties:
+        forma_pago: 
+          type: string
+          description: Indica la forma que se realiza el pago.
+          example: OCSF
+        plazo: 
+          type: integer
+          description: Tiempo días para el pago del Documento
+          example: 0
+        unidad: 
+          type: string
+          description: Unidad de tiempo del plazo para el pago.
+          example: D
+        valor: 
+          type: decimal
+          description: Valor final del pago.
+          example: 4.0
+
+    Parametro:
+      properties:
+        "nombre": 
+          type: string
+          description: Nombre del parametro
+          example: "habilitar_ajuste_asiento"
+        "tipo": 
+          type: string
+          description: Tipo de parametro
+          example: "HAB"
+        "valor": 
+          type: string
+          description: Valor del parametro
+          example: "False"
+
+    Unidad:
+      properties:
+        "nombre": 
+          type: string
+          description: Nombre de la Unidad
+          example: "Toneladas"
+        "id": 
+          type: string
+          description: Id de la Unidad
+          example: "QRYjbqjR1i7dLNgm"
+
+  examples:
+    ingreso:
+      summary: Ingreso de Inventario
+      value:
+        tipo: ING
+        fecha: 01/01/2019
+        bodega_id: ljMEegJAHq0dQ5g3
+        detalles: [
+            {
+                "producto_id": "RYWb4xYKNhz0bZ1m",
+                "precio": "10.0",
+                "cantidad": "1.0"
+            }
+        ]
+        descripcion: detalle ingreso
+
+    egreso:
+      summary: Egreso de Inventario
+      value:
+        tipo: EGR
+        fecha: 08/02/2017
+        bodega_id: lLPEegJAHq0dQty8
+        detalles: [
+            {
+              "producto_id": "2vj6e9pm5Uz3dWBV",
+              "cantidad": "30.0"
+            }
+        ]
+        descripcion: detalle egreso
+
+    traslado:
+      summary: Traslado de Inventario
+      value:
+        pos: 132b2d42-4319-40df-9313-b477db959543
+        codigo: TRA 201705000002
+        bodega_id: O9pgen5AoTXOdNQx
+        tipo: TRA
+        fecha: 24/05/2017
+        detalles: [
+            {
+              producto_id: PxBleX5JYI45arNO, 
+              cantidad: 2.0
+            }
+        ]
+        descripcion: Traslado prueba
+        bodega_destino_id: mxGge0gWwHkodADR
+        codigo_interno: null
+
+    efectivo:
+      summary: Efectivo
+      value:
+        "forma_cobro": "EF"
+        "monto": 10
+        "fecha": "18/11/2025"
+    
+    tarjeta:
+      summary: Tarjeta de crédito
+      value:
+        "forma_cobro": "TC"
+        "monto": 0.50
+        "fecha": "13/11/2025"
+        "tipo_ping": "D"
+        "lote": 3435
+        "numero_comprobante": 54645
+      
+    transferencia:
+      summary: Transferencia
+      value:
+        "forma_cobro": "TRA"
+        "monto": "100.00"
+        "cuenta_bancaria_id" : "qRYjbPkzC10eLNgn"
+        "numero_comprobante" : "TRANSFERENCIA 123"
+        "fecha": "08/11/2017"
+    
+    cheque:
+      summary: Cheque
+      value: 
+        "forma_cobro": "CQ"
+        "numero_cheque" : "12345"
+        "monto": "100.00"
+        "fecha": "08/11/2017"
+
+    cliente:
+      summary: Documento Tipo Cliente
+      value:
+        "pos" : "ceaa9097-1d76-4eb8-0000-6f412fa0297b"
+        "fecha_emision": "01/11/2015"
+        "hora_emision": "16:53:00"
+        "tipo_registro" : "CLI"
+        "tipo_documento": "FAC"
+        "documento": "001-001-000008089"
+        "estado": "P"
+        "autorizacion": "0123456789"
+        "referencia": ""
+        "caja_id": null
+        cliente: 
+          "ruc": "0922054366001"
+          "cedula": "0922054366"
+          "razon_social": "Nombres del Cliente"
+          "telefonos": "0988800001"
+          "direccion": "Direccion cliente"
+          "tipo": "N"
+          "email": "cliente@contifico.com"
+          "es_extranjero": false
+        vendedor:
+          "ruc": "0904728680001"
+          "cedula": "0904728680"
+          "razon_social": "Nombres del Vendedor"
+          "telefonos": "5104910"
+          "direccion": "direccion del vendedor"
+          "tipo": "N"
+          "email": "vendedor@contifico.com"
+          "es_extranjero": false
+        "descripcion": "FACTURA 8040"
+        "subtotal_0": 0.00
+        "subtotal_12": 1.35
+        "iva": 0.16
+        "ice": 0.00
+        "servicio": 0.00
+        "total": 1.51
+        "adicional1": ""
+        "adicional2": ""
+        detalles:
+          "producto_id": "RZxg87rxLh9Mb1pV"
+          "cantidad": 1.00
+          "precio": 1.00
+          "porcentaje_iva": 12
+          "porcentaje_descuento": 0.00
+          "base_cero": 0.00
+          "base_gravable": 1.00
+          "base_no_gravable": 0.00
+          "porcentaje_ice": 15
+          "valor_ice" : null
+          "serie": null
+          "descripcion": null
+        cobros:
+          "forma_cobro" : "TC"
+          "monto" : 1.51
+          "numero_cheque" : "4567897"
+          "tipo_ping" : "D"
+    
+    proveedor:
+      summary: Documento Tipo Proveedor
+      value:
+        "pos" : "e4ee7f87-471c-4110-8c2f-15dae1e44ac4"
+        "fecha_emision": "07/08/2018"
+        "tipo_documento": "FAC"
+        "tipo_registro" : "PRO"
+        "documento": "333-001-002008012"
+        "autorizacion": "0123456787"
+        "referencia": ""
+        "caja_id": null
+        "persona": 
+            "ruc": ""
+            "cedula": "0922078352"
+            "razon_social": "Andres Gomez"
+            "telefonos": "0988845001"
+            "direccion": "Direccion proveedor"
+            "tipo": "N"
+            "email": "cliente@contifico.com"
+            "es_extranjero": false
+        "descripcion": "FACTURA 8040"
+        "subtotal_0": 0.00
+        "subtotal_12": 1.35
+        "iva": 0.16
+        "ice": 0.00
+        "servicio": 0.00
+        "total": 1.51
+        "adicional1": ""
+        "adicional2": ""
+        "detalles": 
+            "producto_id": "x4LmavQwkcENe3Nr"
+            "cantidad": 1.00
+            "precio": 1.00
+            "porcentaje_iva": 12
+            "porcentaje_descuento": 0.00
+            "base_cero": 0.00
+            "base_gravable": 1.00
+            "base_no_gravable": 0.00
+            "porcentaje_ice": 15
+            "valor_ice" : null   
+            "serie": null
+            "descripcion": null
+
+    prefactura:
+      summary: Documento Tipo Prefactura
+      value:
+        "pos" : "ffc3de27-fb4c-48b4-a06e-a129cf37ea99"
+        "fecha_emision": "26/01/2016"
+        "tipo_registro" : "CLI"
+        "tipo_documento": "PRE"
+        "estado": "P"
+        "referencia": ""
+        "caja_id": ""
+        "cliente": 
+            "ruc": ""
+            "cedula": "0922054366"
+            "razon_social": "Andres Gomez"
+            "telefonos": ""
+            "direccion": ""
+            "tipo": "N"
+            "email": ""
+            "es_extranjero": false
+        "vendedor": ""
+        "descripcion": "DETALLE PREFACTURA"
+        "subtotal_0": 0.00
+        "subtotal_12": 125.00
+        "iva": 20.00
+        "total": 140.00
+        "adicional1": "165582/165581/165580/165579/165578/"
+        "detalles": 
+            "producto_id": "x4LmavQwkcENe3No"
+            "cantidad": 1.00
+            "precio": 125.00
+            "porcentaje_iva": 12
+            "porcentaje_descuento": 0.00
+            "base_cero": 0.00
+            "base_gravable": 125.00
+            "base_no_gravable": 0.00
+            "serie": null
+            "descripcion": null
+
+    notacredito:
+      summary: Documento Tipo Nota de Crédito
+      value:
+        "pos" : "ffc3de27-fb4c-48b4-a06e-a129cf37ea99"
+        "fecha_emision": "26/01/2016"
+        "tipo_documento": "NCT"
+        "documento_relacionado_id": "9jaKrY5mDMU4yyek"
+        "tipo_registro" : "PRO"
+        "documento": "333-001-002008012"
+        "autorizacion": "0123456787"
+        "estado": "P"
+        "referencia": ""
+        "caja_id": ""
+        "cliente": 
+            "ruc": ""
+            "cedula": "0922054366"
+            "razon_social": "Andres Gomez"
+            "telefonos": ""
+            "direccion": ""
+            "tipo": "N"
+            "email": ""
+            "es_extranjero": false
+        "vendedor": ""
+        "descripcion": "DETALLE NCT"
+        "subtotal_0": 0.00
+        "subtotal_12": 125.00
+        "iva": 20.00
+        "total": 140.00
+        "adicional1": "165582/165581/165580/165579/165578/"
+        "detalles": 
+            "producto_id": "x4LmavQwkcENe3No"
+            "cantidad": 1.00
+            "precio": 125.00
+            "porcentaje_iva": 12
+            "porcentaje_descuento": 0.00
+            "base_cero": 0.00
+            "base_gravable": 125.00
+            "base_no_gravable": 0.00
+            "serie": null
+            "descripcion": null
+
+    liquidacion:
+      summary: Documento Tipo Liquidación de compras
+      value:
+        "pos" : "ceaa9097-1d76-4eb8-0000-6f412fa0297b"
+        "fecha_emision": "01/11/2015"
+        "tipo_documento": "LQC"
+        "tipo_registro" : "PRO"
+        "documento": "001-001-000001111"
+        "estado": "P"
+        "referencia": ""
+        "electronico" : true
+        "autorizacion": ""
+        "caja_id": null
+        "cliente": 
+            "ruc": "0922054366001"
+            "cedula": "0922054366"
+            "razon_social": "Nombres del Cliente"
+            "telefonos": "0988800001"
+            "direccion": "Direccion cliente"
+            "tipo": "N"
+            "email": "cliente@contifico.com"
+            "es_extranjero": false
+        "vendedor": 
+            "ruc": "0904728680001"
+            "cedula": "0904728680"
+            "razon_social": "Nombres del Vendedor"
+            "telefonos": "5104910"
+            "direccion": "direccion del vendedor"
+            "tipo": "N"
+            "email": "vendedor@contifico.com"
+            "es_extranjero": false
+        "descripcion": "FACTURA 8040"
+        "subtotal_0": 0.00
+        "subtotal_12": 1.35
+        "iva": 0.16
+        "servicio": 0.00
+        "total": 1.51
+        "adicional1": ""
+        "adicional2": ""
+        "detalles": 
+            "producto_id": "RZxg87rxLh9Mb1pV"
+            "cantidad": 1.00
+            "precio": 1.00
+            "porcentaje_iva": 12
+            "porcentaje_descuento": 0.00
+            "base_cero": 0.00
+            "base_gravable": 1.00
+            "base_no_gravable": 0.00
+            "serie": null
+            "descripcion": null
+
+    natural:
+      summary: Persona Natural
+      value: 
+        "razon_social": "Nueva persona Natural api v2"
+        "email": "prueba1@gmail.com;prueba2@hotmail.com;prueba3@yahoo.com"
+        "tipo": "N"
+        "es_cliente": true
+        "cedula": "0901563874"
+    
+    naturalconRUC:
+      summary: Persona Natural con RUC
+      value:
+        "razon_social": "Nueva persona Natural con RUC"
+        "email": "guru800555@siigo.com;gurumendibryan@hotmail.com;bgurumendi@contifico.com"
+        "tipo": "N"
+        "es_cliente": true
+        "es_proveedor": true
+        "ruc": "0302860457001"
+        "cedula": "0924778954"
+    
+    juridica:
+      summary: Persona Juridica
+      value:
+        "razon_social": "Nueva persona Juridica"
+        "email": "prueba1@gmail.com;prueba2@hotmail.com;prueba3@yahoo.com"
+        "tipo": "J"
+        "es_cliente": true
+        "ruc": "0990009228001"
+
+    juridicaconCedula:
+      summary: Persona Juridica con Cedula
+      value:
+        "razon_social": "Nueva persona Juridica con Cedula"
+        "email": "prueba1@gmail.com;prueba2@hotmail.com;prueba3@yahoo.com"
+        "tipo": "J"
+        "es_cliente": true
+        "es_proveedor": true
+        "ruc": "1792182646001"
+        "cedula": "0917629420"
+    
+    sinID:
+      summary: Persona sin ID
+      value:
+        "razon_social": "Nueva persona sin ID"
+        "email": "prueba1@gmail.com;prueba2@hotmail.com;prueba3@yahoo.com"
+        "tipo": "I"
+        "es_cliente": true
+        "es_proveedor": true
+        "personaasociada_id": "wy7aA8x3y8cZ6egZ"
+
+    extranjeroNatural:
+      summary: Persona Extranjero Natural
+      value:
+        "razon_social": "Nueva persona Extranjera"
+        "email": "prueba1@gmail.com;prueba2@hotmail.com;prueba3@yahoo.com"
+        "tipo": "N"
+        "es_cliente": true
+        "es_proveedor": true
+        "es_extranjero": true
+        "cedula": "exreinger"
+    
+    extranjeroJuridico:
+      summary: Persona Extranjero Juridico
+      value:
+        "razon_social": "Nueva persona Extranjera"
+        "email": "prueba1@gmail.com;prueba2@hotmail.com;prueba3@yahoo.com"
+        "tipo": "J"
+        "es_cliente": true
+        "es_proveedor": true
+        "es_extranjero": true
+        "ruc": "extranjerito1"
+
+security:
+  - API_KEY: []

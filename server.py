@@ -77,7 +77,9 @@ def _build_headers() -> dict[str, str]:
 async def _request(
     method: str,
     path: str,
-    *,    params: dict[str, Any] | None = None,
+    *,
+    headers: dict[str, str] | None = None,
+    params: dict[str, Any] | None = None,
     body: dict[str, Any] | None = None) -> dict | list | str:
     """Ejecuta una petición HTTP contra la API de Contifico y devuelve la respuesta."""
     url = f"{CONTIFICO_BASE_URL}{path}"
@@ -87,11 +89,15 @@ async def _request(
 
     logger.info("%s %s params=%s", method.upper(), url, params)
 
+    req_headers = _build_headers()
+    if headers:
+        req_headers.update(headers)
+
     async with httpx.AsyncClient(timeout=HTTP_TIMEOUT) as client:
         resp = await client.request(
             method,
             url,
-            headers=_build_headers(),
+            headers=req_headers,
             params=params,
             json=body)
         logger.info("Respuesta HTTP %s", resp.status_code)
@@ -928,8 +934,7 @@ async def listar_documentos(    tipo_registro: str | None = None,
 
 
 @mcp.tool()
-async def crear_documento(    pos: str,
-    fecha_emision: str,
+async def crear_documento(    fecha_emision: str,
     tipo_documento: str,
     tipo_registro: str,
     documento: str,
@@ -942,6 +947,7 @@ async def crear_documento(    pos: str,
     ice: float,
     total: float,
     detalles: list[dict[str, Any]],
+    pos: str | None = None,
     cliente: dict[str, Any] | None = None,
     persona: dict[str, Any] | None = None,
     vendedor: dict[str, Any] | None = None,
@@ -953,7 +959,8 @@ async def crear_documento(    pos: str,
     adicional2: str | None = None,
     hora_emision: str | None = None,
     electronico: bool | None = None,
-    documento_relacionado_id: str | None = None) -> str:
+    documento_relacionado_id: str | None = None,
+    reserva_relacionada: str | None = None) -> str:
     """⚠️ MUTATION — Create a document (invoice, credit note, quotation, etc.) in Contifico — POST /api/v2/documento/.
 
     REQUIRED PARAMETERS:
@@ -992,12 +999,16 @@ async def crear_documento(    pos: str,
       hora_emision (str): Emission time.
       electronico (bool): Electronic document flag.
       documento_relacionado_id (str): Related document ID (REQUIRED for NCT type).
+      reserva_relacionada (str): ID of a related reservation (optional, for accounts
+                                  using the reservations module). Send null if not applicable.
 
     RETURNS:
       Dict with created document id_integracion and all fields.
     """
+    resolved_pos = _resolve_pos_token(pos or "")
+
     body: dict[str, Any] = {
-        "pos": pos,
+        "pos": resolved_pos,
         "fecha_emision": fecha_emision,
         "tipo_documento": tipo_documento,
         "tipo_registro": tipo_registro,
@@ -1011,6 +1022,7 @@ async def crear_documento(    pos: str,
         "ice": ice,
         "total": total,
         "detalles": detalles,
+        "reserva_relacionada": reserva_relacionada,
     }
     optionals = {
         "cliente": cliente,
@@ -1036,7 +1048,6 @@ async def crear_documento(    pos: str,
 
 @mcp.tool()
 async def actualizar_documento(    id_integracion: str,
-    pos: str,
     fecha_emision: str,
     tipo_documento: str,
     tipo_registro: str,
@@ -1050,6 +1061,7 @@ async def actualizar_documento(    id_integracion: str,
     ice: float,
     total: float,
     detalles: list[dict[str, Any]],
+    pos: str | None = None,
     cliente: dict[str, Any] | None = None,
     persona: dict[str, Any] | None = None,
     vendedor: dict[str, Any] | None = None,
@@ -1057,7 +1069,8 @@ async def actualizar_documento(    id_integracion: str,
     caja_id: str | None = None,
     servicio: float | None = None,
     adicional1: str | None = None,
-    adicional2: str | None = None) -> str:
+    adicional2: str | None = None,
+    reserva_relacionada: str | None = None) -> str:
     """⚠️ MUTATION — Update an existing document by id_integracion in Contifico — PUT /api/v2/documento/{id}.
 
     Same required fields as crear_documento, but without cobros (collections).
@@ -1070,12 +1083,16 @@ async def actualizar_documento(    id_integracion: str,
 
     OPTIONAL PARAMETERS:
       cliente, persona, vendedor, estado, caja_id, servicio, adicional1, adicional2.
+      reserva_relacionada (str): ID of a related reservation (optional, for accounts
+                                  using the reservations module). Send null if not applicable.
 
     RETURNS:
       Dict with updated document data.
     """
+    resolved_pos = _resolve_pos_token(pos or "")
+
     body: dict[str, Any] = {
-        "pos": pos,
+        "pos": resolved_pos,
         "fecha_emision": fecha_emision,
         "tipo_documento": tipo_documento,
         "tipo_registro": tipo_registro,
@@ -1089,6 +1106,7 @@ async def actualizar_documento(    id_integracion: str,
         "ice": ice,
         "total": total,
         "detalles": detalles,
+        "reserva_relacionada": reserva_relacionada,
     }
     optionals = {
         "cliente": cliente,

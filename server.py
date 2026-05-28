@@ -45,7 +45,8 @@ mcp = FastMCP(
         "Manages: people (customers/suppliers/employees), products, documents (invoices, "
         "credit notes, quotations), categories, warehouses, inventory movements, "
         "collections, bank accounts, payment methods, accounting entries, and payroll. "
-        "Credentials are loaded from CONTIFICO_API_KEY env var. "
+        "Credentials are read per request from the 'Authorization: Bearer <key>' header "
+        "(multi-tenant); CONTIFICO_API_KEY env var is a local-dev-only fallback. "
         "WRITE OPERATIONS: crear_persona and actualizar_persona also require `pos_token`. "
         "PAGINATION: listar_* tools return 100 results per page. Use 'page' parameter to paginate. "
         "DATE FORMAT: All date fields use DD/MM/YYYY format. Example: '30/07/2025'. To filter documents by issue date, use 'fecha_inicial' and 'fecha_final' instead of generic date fields. "
@@ -60,17 +61,58 @@ mcp = FastMCP(
 # ---------------------------------------------------------------------------
 
 
+def _request_http_headers() -> Any:
+    """Return the incoming MCP request's HTTP headers, or None outside an HTTP request.
+
+    Works for the SSE and streamable-http transports, where FastMCP exposes the
+    underlying Starlette ``Request`` via the per-call request context.
+    """
+    try:
+        request = mcp.get_context().request_context.request
+    except (LookupError, ValueError, AttributeError):
+        return None
+    return getattr(request, "headers", None)
+
+
+def _resolve_api_key() -> str:
+    """Resolve the caller's Contifico API key for the current request.
+
+    Priority:
+      1. ``Authorization: Bearer <key>`` header on the incoming MCP request
+         (multi-tenant: each caller passes their own key).
+      2. ``CONTIFICO_API_KEY`` env var — LOCAL DEV ONLY fallback.
+
+    The resolved key is used only for this request and is never stored or logged.
+    """
+    headers = _request_http_headers()
+    if headers:
+        auth = headers.get("authorization")
+        if auth:
+            if auth[:7].lower() == "bearer ":
+                auth = auth[7:]
+            return auth.strip()
+    return os.environ.get("CONTIFICO_API_KEY", "")
+
+
 def _build_headers() -> dict[str, str]:
-    """Build auth headers for a specific account."""
-    resolved = os.environ.get("CONTIFICO_API_KEY", "")
+    """Build Contifico auth headers from the per-request API key."""
+    resolved = _resolve_api_key()
     if not resolved:
         raise ValueError(
-            "api_key is required for this MCP. Pass it as a tool parameter."
+            "No Contifico API key resolved. Send it as 'Authorization: Bearer <key>' "
+            "on the MCP request (multi-tenant), or set CONTIFICO_API_KEY (local dev only)."
         )
     return {
         "Authorization": resolved,
         "Content-Type": "application/json",
     }
+
+
+def _safe_params(params: dict[str, Any] | None) -> dict[str, Any] | None:
+    """Copy of params with the POS token redacted before logging."""
+    if not params:
+        return params
+    return {k: ("***" if k == "pos" else v) for k, v in params.items()}
 
 
 
@@ -87,7 +129,7 @@ async def _request(
     if params:
         params = {k: v for k, v in params.items() if v is not None and v != ""}
 
-    logger.info("%s %s params=%s", method.upper(), url, params)
+    logger.info("%s %s params=%s", method.upper(), url, _safe_params(params))
 
     req_headers = _build_headers()
     if headers:

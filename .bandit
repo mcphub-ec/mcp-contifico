@@ -1,6 +1,8 @@
 [bandit]
-skips = B101,B108,B603,B607
-# B104 (bind 0.0.0.0) was previously skipped. Now host is read from
-# MCP_HOST env var (default 0.0.0.0 in Docker; 127.0.0.1 for local dev).
-# The lint check would catch hardcoded 0.0.0.0 if reintroduced.
-# (bd issue mcphub-wqy)
+# B101: asserts (used in tests). B108: hardcoded /tmp not used.
+# B104 (bind 0.0.0.0) is NOT skipped: the bind address is read from the MCP_HOST
+# env var (default 0.0.0.0 in Docker; 127.0.0.1 for local dev), with an explicit
+# `# nosec B104` on that single line — so the lint check still catches a
+# hardcoded 0.0.0.0 if one is reintroduced anywhere else. (bd issue mcphub-wqy)
+# Dropped B603/B607 (no subprocess use) so they can't mask a future finding.
+skips = B101,B108

@@ -25,17 +25,61 @@ load_dotenv()
 # Configuración
 # ---------------------------------------------------------------------------
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='{"time":"%(asctime)s", "level":"%(levelname)s", "name":"%(name)s", "message":"%(message)s"}',
-)
+import re as _re
+
+
+class _JsonLogFormatter(logging.Formatter):
+    """One well-formed JSON object per log line. json.dumps escapes the message,
+    preventing log-injection / forged lines via crafted values."""
+
+    def format(self, record: logging.LogRecord) -> str:
+        return json.dumps(
+            {
+                "time": self.formatTime(record),
+                "level": record.levelname,
+                "name": record.name,
+                "message": record.getMessage(),
+            },
+            ensure_ascii=False,
+            default=str,
+        )
+
+
+_log_handler = logging.StreamHandler()
+_log_handler.setFormatter(_JsonLogFormatter())
+logging.basicConfig(level=logging.INFO, handlers=[_log_handler])
 logger = logging.getLogger("contifico-mcp")
+
+
+def _env_flag(name: str, default: bool) -> bool:
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    return raw.strip().lower() in ("1", "true", "yes", "on")
+
 
 CONTIFICO_BASE_URL = os.environ.get(
     "CONTIFICO_BASE_URL", "https://api.contifico.com/sistema"
 )
 
 HTTP_TIMEOUT = float(os.environ.get("CONTIFICO_HTTP_TIMEOUT", "30"))
+
+# Security posture — safe by default:
+#   ALLOW_ENV_KEY_FALLBACK (default false): when false, a request with no/invalid
+#     Authorization header is REJECTED instead of silently using the server's
+#     CONTIFICO_API_KEY (which would route one caller to another tenant's account).
+#     Set true ONLY for local single-tenant dev.
+#   CONTIFICO_READONLY (default true): when true, mutating HTTP methods
+#     (POST/PUT/DELETE/PATCH) are blocked server-side. Flip to false only behind a
+#     human-approval layer.
+ALLOW_ENV_KEY_FALLBACK = _env_flag("ALLOW_ENV_KEY_FALLBACK", False)
+CONTIFICO_READONLY = _env_flag("CONTIFICO_READONLY", True)
+
+# Legit Contifico API paths are slash-delimited alphanumeric segments (letters,
+# digits, '_' and '-'). Anything else (a '.', '?', '#', whitespace, '//') is
+# rejected — blocks path traversal and query/fragment injection through any
+# id value interpolated into the path.
+_SAFE_PATH = _re.compile(r"^(?:/[A-Za-z0-9_-]+)+/?$")
 
 mcp = FastMCP(
     "contifico",
@@ -91,7 +135,12 @@ def _resolve_api_key() -> str:
             if auth[:7].lower() == "bearer ":
                 auth = auth[7:]
             return auth.strip()
-    return os.environ.get("CONTIFICO_API_KEY", "")
+    # Fail closed: only fall back to the server env key when explicitly allowed
+    # (local single-tenant dev). In multi-tenant prod a missing header must NOT
+    # silently reuse another tenant's key.
+    if ALLOW_ENV_KEY_FALLBACK:
+        return os.environ.get("CONTIFICO_API_KEY", "")
+    return ""
 
 
 def _build_headers() -> dict[str, str]:
@@ -108,11 +157,20 @@ def _build_headers() -> dict[str, str]:
     }
 
 
+_SENSITIVE_KEYS = {
+    "pos", "authorization", "api_key", "apikey", "token", "key", "secret",
+    "password", "pos_token",
+}
+
+
 def _safe_params(params: dict[str, Any] | None) -> dict[str, Any] | None:
-    """Copy of params with the POS token redacted before logging."""
+    """Copy of params with sensitive values redacted before logging."""
     if not params:
         return params
-    return {k: ("***" if k == "pos" else v) for k, v in params.items()}
+    return {
+        k: ("***" if k.lower() in _SENSITIVE_KEYS else v)
+        for k, v in params.items()
+    }
 
 
 
@@ -124,6 +182,19 @@ async def _request(
     params: dict[str, Any] | None = None,
     body: dict[str, Any] | None = None) -> dict | list | str:
     """Ejecuta una petición HTTP contra la API de Contifico y devuelve la respuesta."""
+    # Read-only guard (server-side defense-in-depth; Socio also filters write
+    # tools client-side). Blocks mutating methods unless writes are enabled.
+    if CONTIFICO_READONLY and method.upper() not in ("GET", "HEAD"):
+        return {
+            "error": True,
+            "status_code": 403,
+            "detail": "Server is in read-only mode; write operations are disabled.",
+        }
+    # Reject any path that isn't slash-delimited alphanumeric segments — blocks
+    # traversal / query-fragment injection via interpolated id values.
+    if not _SAFE_PATH.match(path):
+        raise ValueError(f"Unsafe request path rejected: {path!r}")
+
     url = f"{CONTIFICO_BASE_URL}{path}"
     # Limpiar parámetros vacíos / None
     if params:
@@ -145,11 +216,17 @@ async def _request(
         logger.info("Respuesta HTTP %s", resp.status_code)
 
         if resp.status_code >= 400:
-            error_body = resp.text
+            # Log the upstream body server-side (truncated) but return a generic
+            # message — never echo Contifico's raw error body to the caller
+            # (it can leak another tenant's data/identifiers).
+            logger.warning(
+                "Contifico error %s on %s: %s",
+                resp.status_code, path, resp.text[:500],
+            )
             return {
                 "error": True,
                 "status_code": resp.status_code,
-                "detail": error_body,
+                "detail": f"Contifico returned HTTP {resp.status_code}.",
             }
 
         # Contifico puede devolver un cuerpo vacío en 204/201
@@ -1549,11 +1626,11 @@ async def listar_roles_pago(    pos_token: str | None = None
 
 if __name__ == "__main__":
     import uvicorn
-    import os
-
 
     port = int(os.getenv("MCP_PORT", 8000))
-    transport_mode = os.getenv("MCP_TRANSPORT_MODE", "sse").lower()
+    # Default to streamable-http: it carries the caller's Authorization header
+    # per tool call, which the per-request multi-tenant key model depends on.
+    transport_mode = os.getenv("MCP_TRANSPORT_MODE", "http_stream").lower()
     print(f"Starting MCP Server on http://0.0.0.0:{port}/mcp ({transport_mode})")
     if transport_mode == "sse":
         app = mcp.sse_app()

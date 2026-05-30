@@ -9,6 +9,7 @@ decorators register on the shared `mcp`. _http.py and the tools resolve the
 mutable flags / request helpers through THIS module at call time, so runtime
 monkeypatching (as the test suite does) takes effect.
 """
+
 # Config flags first — _http.py reads server.ALLOW_ENV_KEY_FALLBACK /
 # server.CONTIFICO_READONLY at call time, so they must exist on this module
 # before any tool is invoked.

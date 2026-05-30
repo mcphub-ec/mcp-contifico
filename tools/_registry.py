@@ -24,9 +24,10 @@ call time (``server._request`` / ``server._resolve_pos_token`` / ``server._json`
 / ``server._drop_none``), exactly as the hand-written tools did, so the test
 suite's monkeypatching of ``server.*`` keeps working.
 """
+
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any
 
 import server

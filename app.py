@@ -24,4 +24,5 @@ mcp = FastMCP(
         "NCT=Credit note, COT=Quotation, OCV=Purchase/Sale order, NVE=Sales note. "
         "PERSON TYPES: N=Natural, J=Legal entity, I=No ID (needs personaasociada_id), P=Plate. "
         "INVENTORY TYPES: ING=Entry, EGR=Exit, TRA=Transfer (requires bodega_destino_id)."
-    ))
+    ),
+)

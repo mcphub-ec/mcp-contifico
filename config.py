@@ -3,17 +3,15 @@
 Split out of server.py (issue #1). load_dotenv() runs here before any config
 constant is read, preserving the original load order.
 """
+
 import os
 import json
 import logging
 import re as _re
-from typing import Any
 
 from dotenv import load_dotenv
 
 load_dotenv()
-
-
 
 
 class _JsonLogFormatter(logging.Formatter):

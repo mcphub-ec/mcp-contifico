@@ -8,6 +8,7 @@ time (``server.ALLOW_ENV_KEY_FALLBACK`` / ``server.CONTIFICO_READONLY``) so
 that runtime monkeypatching on ``server`` — as the test suite does — takes
 effect. ``server`` re-exports these helpers and flags.
 """
+
 import os
 import json
 from typing import Any
@@ -96,8 +97,15 @@ def _build_headers() -> dict[str, str]:
 
 
 _SENSITIVE_KEYS = {
-    "pos", "authorization", "api_key", "apikey", "token", "key", "secret",
-    "password", "pos_token",
+    "pos",
+    "authorization",
+    "api_key",
+    "apikey",
+    "token",
+    "key",
+    "secret",
+    "password",
+    "pos_token",
 }
 
 
@@ -106,10 +114,8 @@ def _safe_params(params: dict[str, Any] | None) -> dict[str, Any] | None:
     if not params:
         return params
     return {
-        k: ("***" if k.lower() in _SENSITIVE_KEYS else v)
-        for k, v in params.items()
+        k: ("***" if k.lower() in _SENSITIVE_KEYS else v) for k, v in params.items()
     }
-
 
 
 async def _request(
@@ -118,7 +124,8 @@ async def _request(
     *,
     headers: dict[str, str] | None = None,
     params: dict[str, Any] | None = None,
-    body: dict[str, Any] | None = None) -> dict | list:
+    body: dict[str, Any] | None = None,
+) -> dict | list:
     """Ejecuta una petición HTTP contra la API de Contifico y devuelve la respuesta.
 
     Return contract (always a JSON-serializable object; never raises for the
@@ -169,11 +176,8 @@ async def _request(
 
     async with httpx.AsyncClient(timeout=HTTP_TIMEOUT) as client:
         resp = await client.request(
-            method,
-            url,
-            headers=req_headers,
-            params=params,
-            json=body)
+            method, url, headers=req_headers, params=params, json=body
+        )
         logger.info("Respuesta HTTP %s", resp.status_code)
 
         if resp.status_code >= 400:
@@ -182,7 +186,9 @@ async def _request(
             # (it can leak another tenant's data/identifiers).
             logger.warning(
                 "Contifico error %s on %s: %s",
-                resp.status_code, path, resp.text[:500],
+                resp.status_code,
+                path,
+                resp.text[:500],
             )
             return {
                 "error": True,

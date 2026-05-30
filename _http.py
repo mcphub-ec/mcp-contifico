@@ -118,8 +118,23 @@ async def _request(
     *,
     headers: dict[str, str] | None = None,
     params: dict[str, Any] | None = None,
-    body: dict[str, Any] | None = None) -> dict | list | str:
-    """Ejecuta una petición HTTP contra la API de Contifico y devuelve la respuesta."""
+    body: dict[str, Any] | None = None) -> dict | list:
+    """Ejecuta una petición HTTP contra la API de Contifico y devuelve la respuesta.
+
+    Return contract (always a JSON-serializable object; never raises for the
+    read-only / unsafe-path / HTTP-error cases):
+
+    Success:
+      - parsed JSON from Contifico (``dict`` or ``list``); or
+      - ``{"text": <raw body>}`` when the body isn't valid JSON; or
+      - ``{"ok": True, "status_code": <code>}`` for empty bodies (e.g. 204/201).
+
+    Failure (uniform error shape):
+      - ``{"error": True, "status_code": <code>, "detail": <generic message>}``
+        for the read-only write-gate (403), an unsafe path (400), and any
+        upstream HTTP error (>=400). Details are kept generic and request-specific
+        info (raw path, upstream body) is logged server-side, never returned.
+    """
     # Read-only guard (server-side defense-in-depth; Socio also filters write
     # tools client-side). Blocks mutating methods unless writes are enabled.
     if server.CONTIFICO_READONLY and method.upper() not in ("GET", "HEAD"):
@@ -129,9 +144,17 @@ async def _request(
             "detail": "Server is in read-only mode; write operations are disabled.",
         }
     # Reject any path that isn't slash-delimited alphanumeric segments — blocks
-    # traversal / query-fragment injection via interpolated id values.
+    # traversal / query-fragment injection via interpolated id values. This MUST
+    # run before any network call so an unsafe path never reaches httpx. Return a
+    # uniform error dict (no raise) and log the raw path server-side rather than
+    # echoing it back to the caller (avoids leaking the attempted path).
     if not _SAFE_PATH.match(path):
-        raise ValueError(f"Unsafe request path rejected: {path!r}")
+        logger.warning("Unsafe request path rejected: %r", path)
+        return {
+            "error": True,
+            "status_code": 400,
+            "detail": "Unsafe request path rejected.",
+        }
 
     url = f"{CONTIFICO_BASE_URL}{path}"
     # Limpiar parámetros vacíos / None
@@ -174,7 +197,9 @@ async def _request(
         try:
             return resp.json()
         except Exception:
-            return resp.text
+            # Non-JSON body: wrap so the contract stays "always a JSON object"
+            # (a bare str would get double-encoded by _json downstream).
+            return {"text": resp.text}
 
 
 def _resolve_pos_token(pos_token: str) -> str:

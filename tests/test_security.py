@@ -70,15 +70,32 @@ def test_readonly_blocks_writes():
     assert isinstance(res, dict) and res.get("status_code") == 403
 
 
-def test_path_validation_raises_before_network():
-    """A malicious path is rejected before any HTTP call (even for GET)."""
+def test_path_validation_returns_error_before_network():
+    """A malicious path is rejected before any HTTP call (even for GET).
+
+    New contract (#3): unsafe path RETURNS a uniform error dict (status 400)
+    instead of raising — and httpx is NEVER instantiated (the security invariant
+    that an unsafe path never reaches the network is asserted explicitly).
+    """
+    import httpx
+
     server.CONTIFICO_READONLY = False
+
+    class _Boom:
+        def __init__(self, *a, **k):
+            raise AssertionError("httpx must NOT be called for an unsafe path")
+
+    orig = httpx.AsyncClient
+    httpx.AsyncClient = _Boom
     try:
-        asyncio.run(server._request("GET", "/api/v2/x/../../y/"))
-        raise AssertionError("expected ValueError")
-    except ValueError:
-        pass
+        res = asyncio.run(server._request("GET", "/api/v2/x/../../y/"))
+        assert isinstance(res, dict), f"expected dict, got {type(res)}"
+        assert res.get("error") is True, res
+        assert res.get("status_code") == 400, res
+        # detail must NOT echo the raw path back (info-leak guard)
+        assert "x/../../y" not in res.get("detail", ""), res
     finally:
+        httpx.AsyncClient = orig
         server.CONTIFICO_READONLY = True
 
 

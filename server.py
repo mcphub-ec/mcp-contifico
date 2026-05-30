@@ -35,15 +35,10 @@ from _http import (  # noqa: F401
     _drop_none,
 )
 
-# Importing each tools module registers its @mcp.tool() functions on `mcp`.
-import tools.personas  # noqa: F401,E402
-import tools.categorias  # noqa: F401,E402
-import tools.bodegas  # noqa: F401,E402
-import tools.productos  # noqa: F401,E402
-import tools.inventario  # noqa: F401,E402
-import tools.documentos  # noqa: F401,E402
-import tools.bancos  # noqa: F401,E402
-import tools.varios  # noqa: F401,E402
-import tools.contabilidad  # noqa: F401,E402
+# Importing the spec table builds + registers every @mcp.tool() via the
+# data-driven factory (issue #4). The factory compiles each tool from its spec's
+# literal signature + docstring, so FastMCP regenerates the identical schema, and
+# routes every call through server._request / server._json at runtime.
+import tools.specs  # noqa: F401,E402
 
 __all__ = ["mcp", "_json", "_drop_none"]

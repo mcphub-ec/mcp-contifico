@@ -51,7 +51,7 @@ async def listar_productos(    modificados_desde_fecha: str | None = None,
             "estado": estado,
             "categoria_id": categoria_id,
         })
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)
 
 
 @mcp.tool()
@@ -67,7 +67,7 @@ async def obtener_producto(    id_integracion: str
       categoria_id, porcentaje_iva, unidad, etc.
     """
     result = await server._request("GET", f"/api/v2/producto/{id_integracion}")
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)
 
 
 @mcp.tool()
@@ -161,12 +161,10 @@ async def crear_producto(    nombre: str,
         "maneja_nombremanual": maneja_nombremanual,
         "porcentaje_servicio": porcentaje_servicio,
     }
-    for k, v in optionals.items():
-        if v is not None:
-            body[k] = v
+    body.update(server._drop_none(optionals))
 
     result = await server._request("POST", "/api/v2/producto/", body=body)
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)
 
 
 @mcp.tool()
@@ -245,12 +243,10 @@ async def actualizar_producto(    id_integracion: str,
         "maneja_nombremanual": maneja_nombremanual,
         "porcentaje_servicio": porcentaje_servicio,
     }
-    for k, v in optionals.items():
-        if v is not None:
-            body[k] = v
+    body.update(server._drop_none(optionals))
 
     result = await server._request("PUT", f"/api/v2/producto/{id_integracion}", body=body)
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)
 
 
 @mcp.tool()
@@ -265,4 +261,4 @@ async def obtener_stock_producto(    id_integracion: str
       List of stock entries per warehouse: bodega_nombre, bodega_id, cantidad.
     """
     result = await server._request("GET", f"/api/v2/producto/{id_integracion}/stock/")
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)

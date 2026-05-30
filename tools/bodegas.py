@@ -33,7 +33,7 @@ async def listar_bodegas(    fecha_inicial: str | None = None,
         "GET",
         "/api/v2/bodega/",
         params={"fecha_inicial": fecha_inicial, "fecha_final": fecha_final})
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)
 
 
 @mcp.tool()
@@ -48,4 +48,4 @@ async def obtener_bodega(    id_integracion: str
       Warehouse object with: id_integracion, nombre, codigo, venta, produccion, compra.
     """
     result = await server._request("GET", f"/api/v2/bodega/{id_integracion}/")
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)

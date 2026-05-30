@@ -24,6 +24,25 @@ from config import (
 )
 
 
+def _json(result: Any) -> str:
+    """Serialize a tool result to the canonical MCP JSON string.
+
+    Centralizes the serialization tail every tool shares: non-ASCII is
+    preserved (``ensure_ascii=False``) and non-JSON-native values fall back to
+    ``str`` (``default=str``).
+    """
+    return json.dumps(result, ensure_ascii=False, default=str)
+
+
+def _drop_none(d: dict[str, Any]) -> dict[str, Any]:
+    """Return a copy of ``d`` with keys whose value is ``None`` removed.
+
+    Drops only ``None`` (empty strings and other falsy values are kept),
+    matching the hand-rolled optional-body filtering the write tools shared.
+    """
+    return {k: v for k, v in d.items() if v is not None}
+
+
 def _request_http_headers() -> Any:
     """Return the incoming MCP request's HTTP headers, or None outside an HTTP request.
 

@@ -42,7 +42,7 @@ async def listar_asientos(    page: str | None = None,
             "fecha_final": fecha_final,
             "centro_costo": centro_costo,
         })
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)
 
 
 @mcp.tool()
@@ -59,7 +59,7 @@ async def obtener_asiento(    id_integracion: str
     """
     result = await server._request(
         "GET", f"/api/v2/contabilidad/asiento/{id_integracion}")
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -80,7 +80,7 @@ async def listar_cuentas_contables(    pos_token: str | None = None
     """
     params = {"pos": pos_token} if pos_token else {}
     result = await server._request("GET", "/api/v1/contabilidad/cuenta-contable/", params=params)
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)
 
 
 @mcp.tool()
@@ -96,7 +96,7 @@ async def listar_centros_costo(    pos_token: str | None = None
     """
     params = {"pos": pos_token} if pos_token else {}
     result = await server._request("GET", "/api/v1/contabilidad/centro-costo/", params=params)
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)
 
 
 @mcp.tool()
@@ -133,4 +133,4 @@ async def crear_asiento_contable(    fecha: str,
 
     params = {"pos": pos_token} if pos_token else {}
     result = await server._request("POST", "/api/v1/contabilidad/asiento/", body=payload, params=params)
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)

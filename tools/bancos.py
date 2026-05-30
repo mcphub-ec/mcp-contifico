@@ -26,7 +26,7 @@ async def listar_cuentas_bancarias() -> str:
       fecha_corte, cuenta_contable, nombre_banco.
     """
     result = await server._request("GET", "/api/v2/banco/cuenta/")
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)
 
 
 @mcp.tool()
@@ -41,7 +41,7 @@ async def obtener_cuenta_bancaria(    id_integracion: str
       Bank account object with all fields.
     """
     result = await server._request("GET", f"/api/v2/banco/cuenta/{id_integracion}/")
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -72,4 +72,4 @@ async def listar_movimientos_bancarios(    fecha_inicial: str | None = None,
         params["pos"] = pos_token
 
     result = await server._request("GET", "/api/v1/banco/movimiento/", params=params if params else None)
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)

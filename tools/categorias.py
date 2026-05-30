@@ -38,7 +38,7 @@ async def listar_categorias(    tipo: str | None = None,
             "search_exact": search_exact,
             "modificados_desde_fecha": modificados_desde_fecha,
         })
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)
 
 
 @mcp.tool()
@@ -53,7 +53,7 @@ async def obtener_categoria(    id_integracion: str
       Category object with: id_integracion, nombre, tipo.
     """
     result = await server._request("GET", f"/api/v2/categoria/{id_integracion}/")
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)
 
 
 @mcp.tool()
@@ -68,7 +68,7 @@ async def crear_categoria(    nombre: str
       Dict with created category id_integracion and nombre.
     """
     result = await server._request("POST", "/api/v2/categoria/", body={"nombre": nombre})
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)
 
 
 @mcp.tool()
@@ -85,4 +85,4 @@ async def actualizar_categoria(    id_integracion: str, nombre: str
     """
     result = await server._request(
         "PUT", f"/api/v2/categoria/{id_integracion}/", body={"nombre": nombre})
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)

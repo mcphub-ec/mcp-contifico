@@ -78,7 +78,7 @@ async def listar_documentos(    tipo_registro: str | None = None,
             "persona_id": persona_id,
             "bodega_id": bodega_id,
         })
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)
 
 
 @mcp.tool()
@@ -186,12 +186,10 @@ async def crear_documento(    fecha_emision: str,
         "electronico": electronico,
         "documento_relacionado_id": documento_relacionado_id,
     }
-    for k, v in optionals.items():
-        if v is not None:
-            body[k] = v
+    body.update(server._drop_none(optionals))
 
     result = await server._request("POST", "/api/v2/documento/", body=body)
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)
 
 
 @mcp.tool()
@@ -266,13 +264,11 @@ async def actualizar_documento(    id_integracion: str,
         "adicional1": adicional1,
         "adicional2": adicional2,
     }
-    for k, v in optionals.items():
-        if v is not None:
-            body[k] = v
+    body.update(server._drop_none(optionals))
 
     result = await server._request(
         "PUT", f"/api/v2/documento/{id_integracion}", body=body)
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)
 
 
 @mcp.tool()
@@ -289,7 +285,7 @@ async def obtener_estado_documento(    id_integracion: str
     """
     result = await server._request(
         "GET", f"/api/v2/documento/estado/{id_integracion}")
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -310,7 +306,7 @@ async def listar_cobros_documento(    id_integracion: str
     """
     result = await server._request(
         "GET", f"/api/v2/documento/{id_integracion}/cobro/")
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)
 
 
 @mcp.tool()
@@ -358,13 +354,11 @@ async def crear_cobro_documento(    id_integracion: str,
         "numero_comprobante": numero_comprobante,
         "lote": lote,
     }
-    for k, v in optionals.items():
-        if v is not None:
-            body[k] = v
+    body.update(server._drop_none(optionals))
 
     result = await server._request(
         "POST", f"/api/v2/documento/{id_integracion}/cobro/", body=body)
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -385,4 +379,4 @@ async def obtener_formas_pago_documento(    id_integracion: str
     """
     result = await server._request(
         "GET", f"/api/v2/documento/{id_integracion}/forma_pago")
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)

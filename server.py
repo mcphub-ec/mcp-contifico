@@ -31,6 +31,8 @@ from _http import (  # noqa: F401
     _safe_params,
     _request,
     _resolve_pos_token,
+    _json,
+    _drop_none,
 )
 
 # Importing each tools module registers its @mcp.tool() functions on `mcp`.
@@ -44,4 +46,4 @@ import tools.bancos  # noqa: F401,E402
 import tools.varios  # noqa: F401,E402
 import tools.contabilidad  # noqa: F401,E402
 
-__all__ = ["mcp"]
+__all__ = ["mcp", "_json", "_drop_none"]

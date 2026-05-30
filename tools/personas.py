@@ -65,7 +65,7 @@ async def listar_personas(    search: str | None = None,
             "page": page,
             "categoria_id": categoria_id,
         })
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)
 
 
 @mcp.tool()
@@ -77,7 +77,7 @@ async def obtener_persona(    id_integracion: str
     es_cliente, es_proveedor, email, telefonos, direccion, etc.
     """
     result = await server._request("GET", f"/api/v2/persona/{id_integracion}/")
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)
 
 
 @mcp.tool()
@@ -175,13 +175,11 @@ async def crear_persona(    pos_token: str,
         "tipo_cuenta": tipo_cuenta,
         "origen": origen,
     }
-    for k, v in optionals.items():
-        if v is not None:
-            body[k] = v
+    body.update(server._drop_none(optionals))
 
     result = await server._request(
         "POST", "/api/v2/persona/", params={"pos": pos}, body=body)
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)
 
 
 @mcp.tool()
@@ -252,13 +250,11 @@ async def actualizar_persona(    pos_token: str,
         "numero_tarjeta": numero_tarjeta,
         "tipo_cuenta": tipo_cuenta,
     }
-    for k, v in optionals.items():
-        if v is not None:
-            body[k] = v
+    body.update(server._drop_none(optionals))
 
     result = await server._request(
         "PUT",
         f"/api/v2/persona/{id_integracion}/",
         params={"pos": pos},
         body=body)
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)

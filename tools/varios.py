@@ -28,7 +28,7 @@ async def obtener_parametros_empresa() -> str:
       List of parameter objects with: nombre, tipo, valor.
     """
     result = await server._request("GET", "/api/v2/empresa/parametros")
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -44,7 +44,7 @@ async def listar_unidades() -> str:
       List of unit objects with: id_integracion, nombre.
     """
     result = await server._request("GET", "/api/v2/unidad/")
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)
 
 
 @mcp.tool()
@@ -59,7 +59,7 @@ async def obtener_unidad(    id_integracion: str
       Unit object with: id_integracion, nombre.
     """
     result = await server._request("GET", f"/api/v2/unidad/{id_integracion}")
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -80,7 +80,7 @@ async def listar_roles_pago(    pos_token: str | None = None
     """
     params = {"pos": pos_token} if pos_token else {}
     result = await server._request("GET", "/api/v1/rrhh/rol/", params=params)
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)
 
 
 # ---------------------------------------------------------------------------

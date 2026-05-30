@@ -46,7 +46,7 @@ async def listar_movimientos_inventario(    fecha_inicial: str | None = None,
             "tipo": tipo,
             "bodega_id": bodega_id,
         })
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)
 
 
 @mcp.tool()
@@ -61,7 +61,7 @@ async def obtener_movimiento_inventario(    id_integracion: str
       Full movement object with detalles (product_id, cantidad, precio).
     """
     result = await server._request("GET", f"/api/v2/movimiento-inventario/{id_integracion}")
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)
 
 
 @mcp.tool()
@@ -113,4 +113,4 @@ async def crear_movimiento_inventario(    tipo: str,
         body["bodega_destino_id"] = bodega_destino_id
 
     result = await server._request("POST", "/api/v2/movimiento-inventario/", body=body)
-    return json.dumps(result, ensure_ascii=False, default=str)
+    return server._json(result)

@@ -23,6 +23,8 @@ if __name__ == "__main__":
     # Bind the platform-provided port (Alpic/Fly inject $PORT); fall back to
     # MCP_PORT for back-compat, then 8000.
     port = int(os.getenv("PORT") or os.getenv("MCP_PORT") or "8000")
+    if port <= 0:
+        raise ValueError(f"Invalid port {port!r} — set $PORT/$MCP_PORT to a positive integer")
     transport_mode = os.getenv("MCP_TRANSPORT_MODE", "http_stream").lower()
     print(f"Starting Contifico MCP server on http://0.0.0.0:{port}/mcp ({transport_mode})")
     if transport_mode == "sse":

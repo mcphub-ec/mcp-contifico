@@ -17,9 +17,11 @@ USER appuser
 # Default MCP port (streamable-http transport); actual port via MCP_PORT at runtime
 EXPOSE 8000
 
-# Healthcheck to ensure the container is running and responsive
+# Healthcheck: TCP-connect to the bound port (dynamic via $PORT/$MCP_PORT). A
+# liveness check, not an HTTP GET — the streamable-http app has no plain-200
+# route (every /mcp call needs a session), so an HTTP probe would false-fail.
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD python -c "import socket, os; s=socket.create_connection(('localhost', int(os.getenv('MCP_PORT', '8000'))), 5); s.close()" || exit 1
+  CMD python -c "import os,socket; socket.create_connection(('127.0.0.1', int(os.getenv('PORT') or os.getenv('MCP_PORT') or '8000')), 5)" || exit 1
 
 # Run the FastMCP server via the HTTP entry point (transport from
 # MCP_TRANSPORT_MODE, default http_stream; port from $PORT, falls back to 8000).

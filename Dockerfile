@@ -6,8 +6,9 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy only the application source (avoid shipping anything extraneous)
-COPY server.py stdio_server.py ./
+# Copy the application source (all modules server.py imports after the #1 split)
+COPY app.py config.py _http.py server.py stdio_server.py ./
+COPY tools/ ./tools/
 
 # Run as a non-root user
 RUN useradd --create-home --uid 10001 appuser && chown -R appuser /app

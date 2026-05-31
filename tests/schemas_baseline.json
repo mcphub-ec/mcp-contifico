@@ -1,0 +1,2742 @@
+{
+  "actualizar_categoria": {
+    "description": "⚠️ MUTATION — Update a category's name in Contifico — PUT /api/v2/categoria/{id}/.\n\n    REQUIRED PARAMETERS:\n      id_integracion (str): Category ID (varchar 16). Example: \"AB1234567890CDEF\"\n      nombre (str): New category name (max 300 chars).\n\n    RETURNS:\n      Dict with updated category data.\n    ",
+    "inputSchema": {
+      "properties": {
+        "id_integracion": {
+          "title": "Id Integracion",
+          "type": "string"
+        },
+        "nombre": {
+          "title": "Nombre",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id_integracion",
+        "nombre"
+      ],
+      "title": "actualizar_categoriaArguments",
+      "type": "object"
+    }
+  },
+  "actualizar_documento": {
+    "description": "⚠️ MUTATION — Update an existing document by id_integracion in Contifico — PUT /api/v2/documento/{id}.\n\n    Same required fields as crear_documento, but without cobros (collections).\n\n    REQUIRED PARAMETERS:\n      id_integracion (str): Document ID to update.\n      pos, fecha_emision, tipo_documento, tipo_registro, documento, autorizacion,\n      descripcion, referencia, subtotal_0, subtotal_12, iva, ice, total, detalles:\n      Same as crear_documento.\n\n    OPTIONAL PARAMETERS:\n      cliente, persona, vendedor, estado, caja_id, servicio, adicional1, adicional2.\n      reserva_relacionada (str): ID of a related reservation (optional, for accounts\n                                  using the reservations module). Send null if not applicable.\n\n    RETURNS:\n      Dict with updated document data.\n    ",
+    "inputSchema": {
+      "properties": {
+        "adicional1": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Adicional1"
+        },
+        "adicional2": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Adicional2"
+        },
+        "autorizacion": {
+          "title": "Autorizacion",
+          "type": "string"
+        },
+        "caja_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Caja Id"
+        },
+        "cliente": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cliente"
+        },
+        "descripcion": {
+          "title": "Descripcion",
+          "type": "string"
+        },
+        "detalles": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Detalles",
+          "type": "array"
+        },
+        "documento": {
+          "title": "Documento",
+          "type": "string"
+        },
+        "estado": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Estado"
+        },
+        "fecha_emision": {
+          "title": "Fecha Emision",
+          "type": "string"
+        },
+        "ice": {
+          "title": "Ice",
+          "type": "number"
+        },
+        "id_integracion": {
+          "title": "Id Integracion",
+          "type": "string"
+        },
+        "iva": {
+          "title": "Iva",
+          "type": "number"
+        },
+        "persona": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Persona"
+        },
+        "pos": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pos"
+        },
+        "referencia": {
+          "title": "Referencia",
+          "type": "string"
+        },
+        "reserva_relacionada": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reserva Relacionada"
+        },
+        "servicio": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Servicio"
+        },
+        "subtotal_0": {
+          "title": "Subtotal 0",
+          "type": "number"
+        },
+        "subtotal_12": {
+          "title": "Subtotal 12",
+          "type": "number"
+        },
+        "tipo_documento": {
+          "title": "Tipo Documento",
+          "type": "string"
+        },
+        "tipo_registro": {
+          "title": "Tipo Registro",
+          "type": "string"
+        },
+        "total": {
+          "title": "Total",
+          "type": "number"
+        },
+        "vendedor": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Vendedor"
+        }
+      },
+      "required": [
+        "id_integracion",
+        "fecha_emision",
+        "tipo_documento",
+        "tipo_registro",
+        "documento",
+        "autorizacion",
+        "descripcion",
+        "referencia",
+        "subtotal_0",
+        "subtotal_12",
+        "iva",
+        "ice",
+        "total",
+        "detalles"
+      ],
+      "title": "actualizar_documentoArguments",
+      "type": "object"
+    }
+  },
+  "actualizar_persona": {
+    "description": "⚠️ MUTATION — Update an existing person by id_integracion in Contifico — PUT /api/v2/persona/{id}/.\n\n    REQUIRED PARAMETERS:\n      api_key (str): Contifico API key for the account.\n      pos_token (str): Contifico POS token required for write operations.\n      id_integracion (str): Person ID to update. Example: \"AB1234567890CDEF\"\n      tipo, razon_social, es_cliente, es_proveedor, cedula: Same as crear_persona.\n\n    OPTIONAL PARAMETERS:\n      Same optional fields as crear_persona (minus 'origen').\n\n    RETURNS:\n      Dict with updated person data.\n    ",
+    "inputSchema": {
+      "properties": {
+        "adicionales_cliente": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Adicionales Cliente"
+        },
+        "adicionales_proveedor": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Adicionales Proveedor"
+        },
+        "aplicar_cupo": {
+          "default": false,
+          "title": "Aplicar Cupo",
+          "type": "boolean"
+        },
+        "banco_codigo_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Banco Codigo Id"
+        },
+        "cedula": {
+          "default": "",
+          "title": "Cedula",
+          "type": "string"
+        },
+        "direccion": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Direccion"
+        },
+        "email": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Email"
+        },
+        "es_cliente": {
+          "title": "Es Cliente",
+          "type": "boolean"
+        },
+        "es_corporativo": {
+          "default": false,
+          "title": "Es Corporativo",
+          "type": "boolean"
+        },
+        "es_empleado": {
+          "default": false,
+          "title": "Es Empleado",
+          "type": "boolean"
+        },
+        "es_extranjero": {
+          "default": false,
+          "title": "Es Extranjero",
+          "type": "boolean"
+        },
+        "es_proveedor": {
+          "title": "Es Proveedor",
+          "type": "boolean"
+        },
+        "es_vendedor": {
+          "default": false,
+          "title": "Es Vendedor",
+          "type": "boolean"
+        },
+        "id_integracion": {
+          "title": "Id Integracion",
+          "type": "string"
+        },
+        "nombre_comercial": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Nombre Comercial"
+        },
+        "numero_tarjeta": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Numero Tarjeta"
+        },
+        "personaasociada_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Personaasociada Id"
+        },
+        "placa": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Placa"
+        },
+        "porcentaje_descuento": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Porcentaje Descuento"
+        },
+        "pos_token": {
+          "title": "Pos Token",
+          "type": "string"
+        },
+        "razon_social": {
+          "title": "Razon Social",
+          "type": "string"
+        },
+        "ruc": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ruc"
+        },
+        "telefonos": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Telefonos"
+        },
+        "tipo": {
+          "title": "Tipo",
+          "type": "string"
+        },
+        "tipo_cuenta": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tipo Cuenta"
+        }
+      },
+      "required": [
+        "pos_token",
+        "id_integracion",
+        "tipo",
+        "razon_social",
+        "es_cliente",
+        "es_proveedor"
+      ],
+      "title": "actualizar_personaArguments",
+      "type": "object"
+    }
+  },
+  "actualizar_producto": {
+    "description": "⚠️ MUTATION — Update an existing product in Contifico — PUT /api/v2/producto/{id}.\n\n    REQUIRED PARAMETERS:\n      id_integracion (str): Product ID to update.\n      nombre, codigo, estado, pvp1 (float), minimo (float): Same as crear_producto.\n\n    OPTIONAL PARAMETERS:\n      Same optional fields as crear_producto.\n\n    RETURNS:\n      Dict with updated product data.\n    ",
+    "inputSchema": {
+      "properties": {
+        "campo_catalogo": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Campo Catalogo"
+        },
+        "categoria_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Categoria Id"
+        },
+        "codigo": {
+          "title": "Codigo",
+          "type": "string"
+        },
+        "codigo_auxiliar": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Codigo Auxiliar"
+        },
+        "codigo_barra": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Codigo Barra"
+        },
+        "costo_maximo": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Costo Maximo"
+        },
+        "cuenta_compra_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cuenta Compra Id"
+        },
+        "cuenta_costo_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cuenta Costo Id"
+        },
+        "cuenta_venta_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cuenta Venta Id"
+        },
+        "estado": {
+          "title": "Estado",
+          "type": "string"
+        },
+        "id_integracion": {
+          "title": "Id Integracion",
+          "type": "string"
+        },
+        "maneja_nombremanual": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Maneja Nombremanual"
+        },
+        "marca_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Marca Id"
+        },
+        "minimo": {
+          "default": 0.0,
+          "title": "Minimo",
+          "type": "number"
+        },
+        "nombre": {
+          "title": "Nombre",
+          "type": "string"
+        },
+        "para_pos": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Para Pos"
+        },
+        "personalizado1": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Personalizado1"
+        },
+        "personalizado2": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Personalizado2"
+        },
+        "porcentaje_ice": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Porcentaje Ice"
+        },
+        "porcentaje_iva": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Porcentaje Iva"
+        },
+        "porcentaje_servicio": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Porcentaje Servicio"
+        },
+        "pvp1": {
+          "title": "Pvp1",
+          "type": "number"
+        },
+        "pvp2": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pvp2"
+        },
+        "pvp3": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pvp3"
+        },
+        "pvp4": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pvp4"
+        },
+        "pvp_manual": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pvp Manual"
+        },
+        "tipo": {
+          "default": "PRO",
+          "title": "Tipo",
+          "type": "string"
+        },
+        "tipo_producto": {
+          "default": "SIM",
+          "title": "Tipo Producto",
+          "type": "string"
+        },
+        "unidad": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unidad"
+        },
+        "valor_ice": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Valor Ice"
+        }
+      },
+      "required": [
+        "id_integracion",
+        "nombre",
+        "codigo",
+        "estado",
+        "pvp1"
+      ],
+      "title": "actualizar_productoArguments",
+      "type": "object"
+    }
+  },
+  "crear_asiento_contable": {
+    "description": "⚠️ MUTATION — Create a manual accounting journal entry in Contifico v1 — POST /api/v1/contabilidad/asiento/.\n\n    REQUIRED PARAMETERS:\n      fecha (str): Entry date in DD/MM/YYYY format. Example: \"30/07/2025\"\n      glosa (str): Entry description/concept.\n      detalles (list[dict]): Journal entry lines. Each line requires:\n                             {\"cuenta_id\": \"...\",         # Account ID from listar_cuentas_contables\n                              \"centro_costo_id\": \"...\",   # Cost center ID (optional)\n                              \"tipo\": \"D\",                # \"D\"=Debit | \"H\"=Credit\n                              \"valor\": 100.00}             # Amount\n\n    OPTIONAL PARAMETERS:\n      pos_token (str): POS token. Falls back to CONTIFICO_POS_TOKEN env var if omitted.\n      extra_data (dict): Additional fields for the journal entry.\n\n    RETURNS:\n      Dict with created journal entry id_integracion.\n    ",
+    "inputSchema": {
+      "properties": {
+        "detalles": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Detalles",
+          "type": "array"
+        },
+        "extra_data": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Extra Data"
+        },
+        "fecha": {
+          "title": "Fecha",
+          "type": "string"
+        },
+        "glosa": {
+          "title": "Glosa",
+          "type": "string"
+        },
+        "pos_token": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pos Token"
+        }
+      },
+      "required": [
+        "fecha",
+        "glosa",
+        "detalles"
+      ],
+      "title": "crear_asiento_contableArguments",
+      "type": "object"
+    }
+  },
+  "crear_categoria": {
+    "description": "⚠️ MUTATION — Create a new category in Contifico — POST /api/v2/categoria/.\n\n    REQUIRED PARAMETERS:\n      nombre (str): Category name (max 300 chars). Example: \"Premium Customers\"\n\n    RETURNS:\n      Dict with created category id_integracion and nombre.\n    ",
+    "inputSchema": {
+      "properties": {
+        "nombre": {
+          "title": "Nombre",
+          "type": "string"
+        }
+      },
+      "required": [
+        "nombre"
+      ],
+      "title": "crear_categoriaArguments",
+      "type": "object"
+    }
+  },
+  "crear_cobro_documento": {
+    "description": "⚠️ MUTATION — Register a payment collection on an existing document — POST /api/v2/documento/{id}/cobro/.\n\n    REQUIRED PARAMETERS:\n      id_integracion (str): Document ID to add the collection to (varchar 16).\n      forma_cobro (str): Payment method code. Valid values:\n                         \"EF\"=Cash | \"CQ\"=Check | \"TC\"=Credit card | \"TRA\"=Transfer\n      monto (float): Amount collected (8 int + 2 dec).\n\n    CONDITIONAL PARAMETERS:\n      tipo_ping (str): REQUIRED when forma_cobro=\"TC\". Card processor code:\n                       \"D\"=Datafast | \"M\"=Medianet | \"E\"=Dataexpress |\n                       \"P\"=Placetopay | \"A\"=Alignet\n\n    OPTIONAL PARAMETERS:\n      fecha (str): Collection date, format DD/MM/YYYY.\n      numero_cheque (str): Check number (for forma_cobro=CQ, varchar 15).\n      cuenta_bancaria_id (str): Bank account ID receiving the payment (varchar 16).\n      numero_comprobante (str): Sequence/voucher number (varchar 15).\n      lote (str): Batch identifier.\n\n    RETURNS:\n      Dict with created collection id and confirmation.\n    ",
+    "inputSchema": {
+      "properties": {
+        "cuenta_bancaria_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cuenta Bancaria Id"
+        },
+        "fecha": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fecha"
+        },
+        "forma_cobro": {
+          "title": "Forma Cobro",
+          "type": "string"
+        },
+        "id_integracion": {
+          "title": "Id Integracion",
+          "type": "string"
+        },
+        "lote": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lote"
+        },
+        "monto": {
+          "title": "Monto",
+          "type": "number"
+        },
+        "numero_cheque": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Numero Cheque"
+        },
+        "numero_comprobante": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Numero Comprobante"
+        },
+        "tipo_ping": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tipo Ping"
+        }
+      },
+      "required": [
+        "id_integracion",
+        "forma_cobro",
+        "monto"
+      ],
+      "title": "crear_cobro_documentoArguments",
+      "type": "object"
+    }
+  },
+  "crear_documento": {
+    "description": "⚠️ MUTATION — Create a document (invoice, credit note, quotation, etc.) in Contifico — POST /api/v2/documento/.\n\n    REQUIRED PARAMETERS:\n      pos (str): POS API Token (CONTIFICO_POS_TOKEN). VARCHAR 36.\n      fecha_emision (str): Issue date in DD/MM/YYYY format. Example: \"30/07/2025\"\n      tipo_documento (str): Document type. Valid values:\n                             \"FAC\", \"LQC\", \"PRE\", \"NCT\", \"COT\", \"OCV\", \"NVE\", \"DNA\"\n      tipo_registro (str): Party type. Valid values: \"CLI\"=Customer | \"PRO\"=Supplier\n      documento (str): Document number, varchar 17. Example: \"001-001-000008089\"\n      autorizacion (str): SRI authorization number (varchar 49).\n      descripcion (str): Document description.\n      referencia (str): Reference data (additional identifier).\n      subtotal_0 (float): Subtotal with 0% VAT (8 int + 2 dec).\n      subtotal_12 (float): Subtotal with applicable VAT (8 int + 2 dec).\n      iva (float): Total VAT amount.\n      ice (float): ICE tax amount.\n      total (float): Document total (8 int + 2 dec).\n      detalles (list[dict]): Line items. Each requires:\n                             {\"producto_id\": \"...\",          # varchar 16\n                              \"cantidad\": 2.0,                # 7+6 decimals\n                              \"precio\": 10.50,               # 7+6 decimals\n                              \"porcentaje_descuento\": 0,\n                              \"base_cero\": 0.0,\n                              \"base_gravable\": 10.50,\n                              \"base_no_gravable\": 0.0}\n\n    OPTIONAL PARAMETERS:\n      cliente (dict): Customer person object (for tipo_registro=CLI).\n      persona (dict): Supplier person object (for tipo_registro=PRO).\n      vendedor (dict): Salesperson person object.\n      cobros (list[dict]): Collections: [{\"forma_cobro\": \"EF\", \"monto\": 11.50, \"tipo_ping\": null}]\n      estado (str): Document status: \"P\"=Pending, \"C\"=Collected.\n      caja_id (str): Cash register ID.\n      servicio (float): Service charge.\n      adicional1, adicional2 (str): Additional text fields.\n      hora_emision (str): Emission time.\n      electronico (bool): Electronic document flag.\n      documento_relacionado_id (str): Related document ID (REQUIRED for NCT type).\n      reserva_relacionada (str): ID of a related reservation (optional, for accounts\n                                  using the reservations module). Send null if not applicable.\n\n    RETURNS:\n      Dict with created document id_integracion and all fields.\n    ",
+    "inputSchema": {
+      "properties": {
+        "adicional1": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Adicional1"
+        },
+        "adicional2": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Adicional2"
+        },
+        "autorizacion": {
+          "title": "Autorizacion",
+          "type": "string"
+        },
+        "caja_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Caja Id"
+        },
+        "cliente": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cliente"
+        },
+        "cobros": {
+          "anyOf": [
+            {
+              "items": {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cobros"
+        },
+        "descripcion": {
+          "title": "Descripcion",
+          "type": "string"
+        },
+        "detalles": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Detalles",
+          "type": "array"
+        },
+        "documento": {
+          "title": "Documento",
+          "type": "string"
+        },
+        "documento_relacionado_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Documento Relacionado Id"
+        },
+        "electronico": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Electronico"
+        },
+        "estado": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Estado"
+        },
+        "fecha_emision": {
+          "title": "Fecha Emision",
+          "type": "string"
+        },
+        "hora_emision": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Hora Emision"
+        },
+        "ice": {
+          "title": "Ice",
+          "type": "number"
+        },
+        "iva": {
+          "title": "Iva",
+          "type": "number"
+        },
+        "persona": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Persona"
+        },
+        "pos": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pos"
+        },
+        "referencia": {
+          "title": "Referencia",
+          "type": "string"
+        },
+        "reserva_relacionada": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reserva Relacionada"
+        },
+        "servicio": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Servicio"
+        },
+        "subtotal_0": {
+          "title": "Subtotal 0",
+          "type": "number"
+        },
+        "subtotal_12": {
+          "title": "Subtotal 12",
+          "type": "number"
+        },
+        "tipo_documento": {
+          "title": "Tipo Documento",
+          "type": "string"
+        },
+        "tipo_registro": {
+          "title": "Tipo Registro",
+          "type": "string"
+        },
+        "total": {
+          "title": "Total",
+          "type": "number"
+        },
+        "vendedor": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Vendedor"
+        }
+      },
+      "required": [
+        "fecha_emision",
+        "tipo_documento",
+        "tipo_registro",
+        "documento",
+        "autorizacion",
+        "descripcion",
+        "referencia",
+        "subtotal_0",
+        "subtotal_12",
+        "iva",
+        "ice",
+        "total",
+        "detalles"
+      ],
+      "title": "crear_documentoArguments",
+      "type": "object"
+    }
+  },
+  "crear_movimiento_inventario": {
+    "description": "⚠️ MUTATION — Create an inventory movement (entry, exit, or transfer) — POST /api/v2/movimiento-inventario/.\n\n    REQUIRED PARAMETERS:\n      tipo (str): Movement type. Valid values: \"ING\"=Entry | \"EGR\"=Exit | \"TRA\"=Transfer\n      fecha (str): Date in DD/MM/YYYY format. Example: \"30/07/2025\"\n      bodega_id (str): Source warehouse ID (varchar 16).\n      descripcion (str): Description of the movement.\n      detalles (list[dict]): List of items. Each requires:\n                             {\"producto_id\": \"...\",    # varchar 16\n                              \"cantidad\": 5.0,          # quantity\n                              \"precio\": 10.50}          # price (REQUIRED for tipo=ING)\n\n    CONDITIONAL PARAMETERS:\n      pos (str): POS token. REQUIRED for tipo=\"TRA\".\n      bodega_destino_id (str): Destination warehouse ID. REQUIRED for tipo=\"TRA\".\n\n    OPTIONAL PARAMETERS:\n      codigo (str): Movement reference code.\n      generar_asiento (bool, default=False): If True, auto-generates accounting entry.\n\n    RETURNS:\n      Dict with created movement id_integracion and result.\n    ",
+    "inputSchema": {
+      "properties": {
+        "bodega_destino_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bodega Destino Id"
+        },
+        "bodega_id": {
+          "title": "Bodega Id",
+          "type": "string"
+        },
+        "codigo": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Codigo"
+        },
+        "descripcion": {
+          "title": "Descripcion",
+          "type": "string"
+        },
+        "detalles": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Detalles",
+          "type": "array"
+        },
+        "fecha": {
+          "title": "Fecha",
+          "type": "string"
+        },
+        "generar_asiento": {
+          "default": false,
+          "title": "Generar Asiento",
+          "type": "boolean"
+        },
+        "pos": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pos"
+        },
+        "tipo": {
+          "title": "Tipo",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tipo",
+        "fecha",
+        "bodega_id",
+        "descripcion",
+        "detalles"
+      ],
+      "title": "crear_movimiento_inventarioArguments",
+      "type": "object"
+    }
+  },
+  "crear_persona": {
+    "description": "⚠️ MUTATION — Create a person (customer, supplier, or employee) in Contifico — POST /api/v2/persona/.\n\n    REQUIRED PARAMETERS:\n      api_key (str): Contifico API key for the account.\n      pos_token (str): Contifico POS token required for write operations.\n                  \"I\"=No ID (requires personaasociada_id), \"P\"=Plate (requires placa).\n      razon_social (str): Full name or company name (max 300 chars).\n      es_cliente (bool): True if this person is a customer.\n      es_proveedor (bool): True if this person is a supplier.\n                           At least one of es_cliente/es_proveedor MUST be True.\n      cedula (str): Cedula number (10 digits). Required for all types except \"I\".\n                    Example: \"0912345678\". Use empty string \"\" if not applicable.\n\n    CONDITIONAL PARAMETERS:\n      ruc (str): RUC (13 digits). REQUIRED for tipo=\"J\". Example: \"0912345678001\"\n      placa (str): Vehicle plate. REQUIRED for tipo=\"P\". Example: \"PBC-454\"\n      personaasociada_id (str): Associated person ID. REQUIRED for tipo=\"I\".\n\n    OPTIONAL PARAMETERS:\n      nombre_comercial (str): Trade name.\n      email (str): Email address.\n      telefonos (str): Phone numbers.\n      direccion (str): Address.\n      es_vendedor (bool, default=False): Is a salesperson.\n      es_empleado (bool, default=False): Is an employee.\n      es_corporativo (bool, default=False): Is a corporate account.\n      es_extranjero (bool, default=False): Is a foreign entity.\n      aplicar_cupo (bool, default=False): Apply credit limit.\n      porcentaje_descuento (float): Default discount percentage.\n      adicionales_cliente (str): Customer additional data (JSON string).\n      adicionales_proveedor (str): Supplier additional data (JSON string).\n      banco_codigo_id (str): Bank ID for direct debit.\n      numero_tarjeta (str): Card number for direct debit.\n      tipo_cuenta (str): Account type (\"CC\"=Checking, \"CA\"=Savings).\n      origen (str): Customer origin (for CRM segmentation).\n\n    RETURNS:\n      Dict with created person id_integracion and all fields.\n    ",
+    "inputSchema": {
+      "properties": {
+        "adicionales_cliente": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Adicionales Cliente"
+        },
+        "adicionales_proveedor": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Adicionales Proveedor"
+        },
+        "aplicar_cupo": {
+          "default": false,
+          "title": "Aplicar Cupo",
+          "type": "boolean"
+        },
+        "banco_codigo_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Banco Codigo Id"
+        },
+        "cedula": {
+          "default": "",
+          "title": "Cedula",
+          "type": "string"
+        },
+        "direccion": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Direccion"
+        },
+        "email": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Email"
+        },
+        "es_cliente": {
+          "title": "Es Cliente",
+          "type": "boolean"
+        },
+        "es_corporativo": {
+          "default": false,
+          "title": "Es Corporativo",
+          "type": "boolean"
+        },
+        "es_empleado": {
+          "default": false,
+          "title": "Es Empleado",
+          "type": "boolean"
+        },
+        "es_extranjero": {
+          "default": false,
+          "title": "Es Extranjero",
+          "type": "boolean"
+        },
+        "es_proveedor": {
+          "title": "Es Proveedor",
+          "type": "boolean"
+        },
+        "es_vendedor": {
+          "default": false,
+          "title": "Es Vendedor",
+          "type": "boolean"
+        },
+        "nombre_comercial": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Nombre Comercial"
+        },
+        "numero_tarjeta": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Numero Tarjeta"
+        },
+        "origen": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Origen"
+        },
+        "personaasociada_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Personaasociada Id"
+        },
+        "placa": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Placa"
+        },
+        "porcentaje_descuento": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Porcentaje Descuento"
+        },
+        "pos_token": {
+          "title": "Pos Token",
+          "type": "string"
+        },
+        "razon_social": {
+          "title": "Razon Social",
+          "type": "string"
+        },
+        "ruc": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ruc"
+        },
+        "telefonos": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Telefonos"
+        },
+        "tipo": {
+          "title": "Tipo",
+          "type": "string"
+        },
+        "tipo_cuenta": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tipo Cuenta"
+        }
+      },
+      "required": [
+        "pos_token",
+        "tipo",
+        "razon_social",
+        "es_cliente",
+        "es_proveedor"
+      ],
+      "title": "crear_personaArguments",
+      "type": "object"
+    }
+  },
+  "crear_producto": {
+    "description": "⚠️ MUTATION — Create a new product in Contifico — POST /api/v2/producto/.\n\n    REQUIRED PARAMETERS:\n      nombre (str): Product name (max 300 chars). Example: \"Laptop Dell\"\n      codigo (str): Unique product code (max 25 chars). Example: \"PROD-001\"\n      estado (str): Valid values: \"A\"=Active | \"I\"=Inactive\n      pvp1 (float): Primary sale price (e.g. retail). Example: 1200.00\n      minimo (float, default=0.0): Minimum stock level.\n\n    OPTIONAL PARAMETERS:\n      tipo (str, default=\"PRO\"): \"PRO\"=Product | \"SER\"=Service\n      tipo_producto (str, default=\"SIM\"): \"SIM\"=Simple (only option currently).\n      codigo_barra (str): Barcode.\n      codigo_auxiliar (str): Auxiliary code.\n      categoria_id (str): Product category ID (from listar_categorias).\n      marca_id (str): Brand ID.\n      porcentaje_iva (int): VAT percentage: 0, 12, 14, 15.\n      pvp2, pvp3, pvp4 (float): Alternative price levels.\n      pvp_manual (bool): If True, price can be overridden at POS.\n      cuenta_venta_id, cuenta_compra_id, cuenta_costo_id (str): Accounting account IDs.\n      costo_maximo (float): Maximum purchase cost.\n      para_pos (bool): Make available in POS.\n      unidad (str): Unit of measure.\n      porcentaje_ice, valor_ice (float): ICE tax fields if applicable.\n\n    RETURNS:\n      Dict with created product id_integracion and all fields.\n    ",
+    "inputSchema": {
+      "properties": {
+        "campo_catalogo": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Campo Catalogo"
+        },
+        "categoria_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Categoria Id"
+        },
+        "codigo": {
+          "title": "Codigo",
+          "type": "string"
+        },
+        "codigo_auxiliar": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Codigo Auxiliar"
+        },
+        "codigo_barra": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Codigo Barra"
+        },
+        "costo_maximo": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Costo Maximo"
+        },
+        "cuenta_compra_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cuenta Compra Id"
+        },
+        "cuenta_costo_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cuenta Costo Id"
+        },
+        "cuenta_venta_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cuenta Venta Id"
+        },
+        "estado": {
+          "title": "Estado",
+          "type": "string"
+        },
+        "maneja_nombremanual": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Maneja Nombremanual"
+        },
+        "marca_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Marca Id"
+        },
+        "minimo": {
+          "default": 0.0,
+          "title": "Minimo",
+          "type": "number"
+        },
+        "nombre": {
+          "title": "Nombre",
+          "type": "string"
+        },
+        "para_pos": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Para Pos"
+        },
+        "personalizado1": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Personalizado1"
+        },
+        "personalizado2": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Personalizado2"
+        },
+        "porcentaje_ice": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Porcentaje Ice"
+        },
+        "porcentaje_iva": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Porcentaje Iva"
+        },
+        "porcentaje_servicio": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Porcentaje Servicio"
+        },
+        "pvp1": {
+          "title": "Pvp1",
+          "type": "number"
+        },
+        "pvp2": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pvp2"
+        },
+        "pvp3": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pvp3"
+        },
+        "pvp4": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pvp4"
+        },
+        "pvp_manual": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pvp Manual"
+        },
+        "tipo": {
+          "default": "PRO",
+          "title": "Tipo",
+          "type": "string"
+        },
+        "tipo_producto": {
+          "default": "SIM",
+          "title": "Tipo Producto",
+          "type": "string"
+        },
+        "unidad": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unidad"
+        },
+        "valor_ice": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Valor Ice"
+        }
+      },
+      "required": [
+        "nombre",
+        "codigo",
+        "estado",
+        "pvp1"
+      ],
+      "title": "crear_productoArguments",
+      "type": "object"
+    }
+  },
+  "listar_asientos": {
+    "description": "List accounting journal entries in Contifico.\n\n    OPTIONAL PARAMETERS:\n      page (str): Page number for pagination. Example: \"2\"\n      fecha_inicial (str): Start date, format DD/MM/YYYY.\n      fecha_final (str): End date, format DD/MM/YYYY.\n      centro_costo (str): Cost center id_integracion to filter by.\n\n    RETURNS:\n      Paginated list of journal entries with: id_integracion, fecha,\n      glosa, and detalles.\n    ",
+    "inputSchema": {
+      "properties": {
+        "centro_costo": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Centro Costo"
+        },
+        "fecha_final": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fecha Final"
+        },
+        "fecha_inicial": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fecha Inicial"
+        },
+        "page": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page"
+        }
+      },
+      "title": "listar_asientosArguments",
+      "type": "object"
+    }
+  },
+  "listar_bodegas": {
+    "description": "List all warehouses in Contifico.\n\n    OPTIONAL PARAMETERS:\n      fecha_inicial (str): Modified from date, format DD/MM/YYYY.\n      fecha_final (str): Modified until date, format DD/MM/YYYY.\n\n    RETURNS:\n      List of warehouse objects with: id_integracion, nombre, codigo,\n      venta (bool), produccion (bool), compra (bool).\n    ",
+    "inputSchema": {
+      "properties": {
+        "fecha_final": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fecha Final"
+        },
+        "fecha_inicial": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fecha Inicial"
+        }
+      },
+      "title": "listar_bodegasArguments",
+      "type": "object"
+    }
+  },
+  "listar_categorias": {
+    "description": "List all categories in Contifico.\n\n    OPTIONAL PARAMETERS:\n      tipo (str): Category type. Valid values: \"Transaccional\" | \"Grupo\"\n      search_exact (str): Filter by exact category name.\n      modificados_desde_fecha (str): Modified since date, format DD/MM/YYYY.\n\n    RETURNS:\n      List of category objects with: id_integracion, nombre, tipo.\n    ",
+    "inputSchema": {
+      "properties": {
+        "modificados_desde_fecha": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Modificados Desde Fecha"
+        },
+        "search_exact": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Search Exact"
+        },
+        "tipo": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tipo"
+        }
+      },
+      "title": "listar_categoriasArguments",
+      "type": "object"
+    }
+  },
+  "listar_centros_costo": {
+    "description": "Retrieve cost centers from Contifico v1.\n\n    OPTIONAL PARAMETERS:\n      pos_token (str): POS token. Falls back to CONTIFICO_POS_TOKEN env var if omitted.\n\n    RETURNS:\n      List of cost center objects with: id, nombre, codigo.\n    ",
+    "inputSchema": {
+      "properties": {
+        "pos_token": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pos Token"
+        }
+      },
+      "title": "listar_centros_costoArguments",
+      "type": "object"
+    }
+  },
+  "listar_cobros_documento": {
+    "description": "List all collections (cobros) for a customer document.\n\n    REQUIRED PARAMETERS:\n      id_integracion (str): Document ID (varchar 16). Must be a customer document.\n\n    RETURNS:\n      List of collection objects with: forma_cobro, monto, tipo_ping, fecha.\n    ",
+    "inputSchema": {
+      "properties": {
+        "id_integracion": {
+          "title": "Id Integracion",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id_integracion"
+      ],
+      "title": "listar_cobros_documentoArguments",
+      "type": "object"
+    }
+  },
+  "listar_cuentas_bancarias": {
+    "description": "List all bank accounts configured in Contifico.\n\n    RETURNS:\n      List of bank account objects with: id_integracion, nombre, numero,\n      tipo_cuenta (CC=Checking/CA=Savings), estado (A/I), saldo_inicial,\n      fecha_corte, cuenta_contable, nombre_banco.\n    ",
+    "inputSchema": {
+      "properties": {},
+      "title": "listar_cuentas_bancariasArguments",
+      "type": "object"
+    }
+  },
+  "listar_cuentas_contables": {
+    "description": "Retrieve the Chart of Accounts (Plan de Cuentas) from Contifico v1.\n\n    OPTIONAL PARAMETERS:\n      pos_token (str): POS token. Falls back to CONTIFICO_POS_TOKEN env var if omitted.\n\n    RETURNS:\n      List of accounting account objects with: id, codigo, nombre, tipo.\n    ",
+    "inputSchema": {
+      "properties": {
+        "pos_token": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pos Token"
+        }
+      },
+      "title": "listar_cuentas_contablesArguments",
+      "type": "object"
+    }
+  },
+  "listar_documentos": {
+    "description": "List and filter documents (invoices, credit notes, quotations, etc.) in Contifico.\n\n    OPTIONAL PARAMETERS:\n      tipo_registro (str): Party type filter. Valid values: \"CLI\"=Customer | \"PRO\"=Supplier\n      tipo (str): Document type. Valid values:\n                  \"FAC\"=Invoice, \"LQC\"=Purchase settlement, \"PRE\"=Pre-invoice,\n                  \"NCT\"=Credit note, \"COT\"=Quotation, \"OCV\"=Purchase/Sale order,\n                  \"NVE\"=Sales note, \"DNA\"=Non-authorized document.\n      fecha_modificacion (str): Modified on date, format DD/MM/YYYY.\n      fecha_emision (str): Issue date, format DD/MM/YYYY.\n      fecha_vencimiento (str): Due date, format DD/MM/YYYY.\n      fecha_creacion (str): Creation date, format DD/MM/YYYY.\n      persona_identificacion (str): Customer/supplier cedula or RUC.\n      page (str): Page number for pagination. Essential to avoid truncation. Example: \"2\". Default is 1.\n      result_page (int): Same as page. Backwards compatibility for older prompts.\n      result_size (int): Number of results per page. Default is 50. Max 100.\n      fecha_inicial, fecha_final (str): Issue date range, format DD/MM/YYYY.\n      persona_id (str): Person integration ID filter.\n      bodega_id (str): Warehouse filter.\n\n    RETURNS:\n      Paginated list of document objects with: id_integracion, tipo_documento,\n      documento (number), fecha_emision, total, estado, persona data.\n    ",
+    "inputSchema": {
+      "properties": {
+        "bodega_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bodega Id"
+        },
+        "fecha_creacion": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fecha Creacion"
+        },
+        "fecha_emision": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fecha Emision"
+        },
+        "fecha_final": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fecha Final"
+        },
+        "fecha_inicial": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fecha Inicial"
+        },
+        "fecha_modificacion": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fecha Modificacion"
+        },
+        "fecha_vencimiento": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fecha Vencimiento"
+        },
+        "page": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page"
+        },
+        "persona_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Persona Id"
+        },
+        "persona_identificacion": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Persona Identificacion"
+        },
+        "result_page": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Result Page"
+        },
+        "result_size": {
+          "default": 50,
+          "title": "Result Size",
+          "type": "integer"
+        },
+        "tipo": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tipo"
+        },
+        "tipo_registro": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tipo Registro"
+        }
+      },
+      "title": "listar_documentosArguments",
+      "type": "object"
+    }
+  },
+  "listar_movimientos_bancarios": {
+    "description": "Retrieve bank movements (bank statements/cartolas) from Contifico v1.\n\n    OPTIONAL PARAMETERS:\n      fecha_inicial (str): Start date, format DD/MM/YYYY.\n      fecha_final (str): End date, format DD/MM/YYYY.\n      pos_token (str): POS token. Falls back to CONTIFICO_POS_TOKEN env var if omitted.\n\n    RETURNS:\n      List of bank movement objects with: fecha, descripcion, monto, tipo (D/C).\n    ",
+    "inputSchema": {
+      "properties": {
+        "fecha_final": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fecha Final"
+        },
+        "fecha_inicial": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fecha Inicial"
+        },
+        "pos_token": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pos Token"
+        }
+      },
+      "title": "listar_movimientos_bancariosArguments",
+      "type": "object"
+    }
+  },
+  "listar_movimientos_inventario": {
+    "description": "List inventory movements in Contifico.\n\n    OPTIONAL PARAMETERS:\n      fecha_inicial (str): Date range start, format DD/MM/YYYY.\n      fecha_final (str): Date range end, format DD/MM/YYYY.\n      estado (str): Valid values: \"G\"=Generated | \"P\"=Pending\n      tipo (str): Movement type. Valid values: \"ING\"=Entry | \"EGR\"=Exit |\n                  \"TRA\"=Transfer | \"AJU\"=Cost adjustment\n      bodega_id (str): Filter by warehouse ID.\n\n    RETURNS:\n      List of inventory movement objects with: id_integracion, tipo, fecha,\n      descripcion, bodega_id, detalles.\n    ",
+    "inputSchema": {
+      "properties": {
+        "bodega_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bodega Id"
+        },
+        "estado": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Estado"
+        },
+        "fecha_final": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fecha Final"
+        },
+        "fecha_inicial": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fecha Inicial"
+        },
+        "tipo": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tipo"
+        }
+      },
+      "title": "listar_movimientos_inventarioArguments",
+      "type": "object"
+    }
+  },
+  "listar_personas": {
+    "description": "Search and list people (customers, suppliers, employees) in Contifico.\n\n    Use this tool to find existing customers before creating a document, or to\n    get id_integracion values for other operations.\n\n    OPTIONAL PARAMETERS:\n      search (str): Search in razon_social, nombre_comercial, cedula, ruc.\n                    Example: \"Juan Perez\"\n      modificados_desde_fecha (str): Filter by last modification date. Format DD/MM/YYYY.\n      estado (str): Valid values: \"A\"=Active | \"I\"=Inactive\n      fecha_inicial (str): Date range start, format DD/MM/YYYY.\n      fecha_final (str): Date range end, format DD/MM/YYYY.\n      es_proveedor (str): Filter suppliers. Valid values: \"1\"=True | \"0\"=False\n      es_cliente (str): Filter customers. Valid values: \"1\"=True | \"0\"=False\n      tipo (str): Person type. Valid values: \"N\"=Natural | \"J\"=Legal entity |\n                  \"I\"=No ID | \"P\"=Plate\n      page (str): Page number for pagination. Results: 100 per page. Example: \"2\"\n      categoria_id (str): Filter by person category ID.\n\n    RETURNS:\n      Paginated list of person objects with: id_integracion, cedula, ruc,\n      razon_social, tipo, es_cliente, es_proveedor, email, telefonos, direccion.\n    ",
+    "inputSchema": {
+      "properties": {
+        "categoria_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Categoria Id"
+        },
+        "es_cliente": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Es Cliente"
+        },
+        "es_proveedor": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Es Proveedor"
+        },
+        "estado": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Estado"
+        },
+        "fecha_final": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fecha Final"
+        },
+        "fecha_inicial": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fecha Inicial"
+        },
+        "modificados_desde_fecha": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Modificados Desde Fecha"
+        },
+        "page": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page"
+        },
+        "search": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Search"
+        },
+        "tipo": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tipo"
+        }
+      },
+      "title": "listar_personasArguments",
+      "type": "object"
+    }
+  },
+  "listar_productos": {
+    "description": "List all products in Contifico (paginated at 100 per page).\n\n    OPTIONAL PARAMETERS:\n      modificados_desde_fecha (str): Filter by last change date, format DD/MM/YYYY.\n      fecha_inicial (str): Last modification range start, format DD/MM/YYYY.\n      fecha_final (str): Last modification range end, format DD/MM/YYYY.\n      filtro (str): Search by product name or code.\n      page (str): Page number for pagination (100 results/page). Example: \"2\"\n      estado (str): Valid values: \"A\"=Active | \"I\"=Inactive\n      categoria_id (str): Filter by category ID.\n\n    RETURNS:\n      Paginated list of product objects with: id_integracion, nombre, codigo,\n      pvp1, pvp2, pvp3, pvp4, estado, categoria_id.\n    ",
+    "inputSchema": {
+      "properties": {
+        "categoria_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Categoria Id"
+        },
+        "estado": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Estado"
+        },
+        "fecha_final": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fecha Final"
+        },
+        "fecha_inicial": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fecha Inicial"
+        },
+        "filtro": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Filtro"
+        },
+        "modificados_desde_fecha": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Modificados Desde Fecha"
+        },
+        "page": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page"
+        }
+      },
+      "title": "listar_productosArguments",
+      "type": "object"
+    }
+  },
+  "listar_roles_pago": {
+    "description": "Retrieve employee payroll records (roles de pago) from Contifico v1.\n\n    OPTIONAL PARAMETERS:\n      pos_token (str): POS token. Falls back to CONTIFICO_POS_TOKEN env var if omitted.\n\n    RETURNS:\n      List of payroll objects with employee, period, net pay, and deductions.\n    ",
+    "inputSchema": {
+      "properties": {
+        "pos_token": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pos Token"
+        }
+      },
+      "title": "listar_roles_pagoArguments",
+      "type": "object"
+    }
+  },
+  "listar_unidades": {
+    "description": "List all units of measure configured in Contifico.\n\n    RETURNS:\n      List of unit objects with: id_integracion, nombre.\n    ",
+    "inputSchema": {
+      "properties": {},
+      "title": "listar_unidadesArguments",
+      "type": "object"
+    }
+  },
+  "obtener_asiento": {
+    "description": "Get a specific accounting journal entry by its id_integracion.\n\n    REQUIRED PARAMETERS:\n      id_integracion (str): Journal entry ID.\n\n    RETURNS:\n      Journal entry with: id, fecha (DD/MM/YYYY), glosa,\n      detalles (list with: cuenta_id, centro_costo_id, tipo D/H, valor).\n    ",
+    "inputSchema": {
+      "properties": {
+        "id_integracion": {
+          "title": "Id Integracion",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id_integracion"
+      ],
+      "title": "obtener_asientoArguments",
+      "type": "object"
+    }
+  },
+  "obtener_bodega": {
+    "description": "Get a warehouse by its id_integracion.\n\n    REQUIRED PARAMETERS:\n      id_integracion (str): Warehouse ID (varchar 16).\n\n    RETURNS:\n      Warehouse object with: id_integracion, nombre, codigo, venta, produccion, compra.\n    ",
+    "inputSchema": {
+      "properties": {
+        "id_integracion": {
+          "title": "Id Integracion",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id_integracion"
+      ],
+      "title": "obtener_bodegaArguments",
+      "type": "object"
+    }
+  },
+  "obtener_categoria": {
+    "description": "Get a category by its id_integracion.\n\n    REQUIRED PARAMETERS:\n      id_integracion (str): Category ID (varchar 16). Example: \"AB1234567890CDEF\"\n\n    RETURNS:\n      Category object with: id_integracion, nombre, tipo.\n    ",
+    "inputSchema": {
+      "properties": {
+        "id_integracion": {
+          "title": "Id Integracion",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id_integracion"
+      ],
+      "title": "obtener_categoriaArguments",
+      "type": "object"
+    }
+  },
+  "obtener_cuenta_bancaria": {
+    "description": "Get a bank account by its id_integracion.\n\n    REQUIRED PARAMETERS:\n      id_integracion (str): Bank account ID (varchar 16).\n\n    RETURNS:\n      Bank account object with all fields.\n    ",
+    "inputSchema": {
+      "properties": {
+        "id_integracion": {
+          "title": "Id Integracion",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id_integracion"
+      ],
+      "title": "obtener_cuenta_bancariaArguments",
+      "type": "object"
+    }
+  },
+  "obtener_estado_documento": {
+    "description": "Check the SRI authorization status of an electronic document.\n\n    REQUIRED PARAMETERS:\n      id_integracion (str): Document ID (varchar 16).\n\n    RETURNS:\n      Dict with: documento_id, tipo_registro, tipo_documento, estado.\n      estado values: \"Firmado\" | \"Enviado a SRI\" | \"Autorizado\" | \"No Firmado\"\n    ",
+    "inputSchema": {
+      "properties": {
+        "id_integracion": {
+          "title": "Id Integracion",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id_integracion"
+      ],
+      "title": "obtener_estado_documentoArguments",
+      "type": "object"
+    }
+  },
+  "obtener_formas_pago_documento": {
+    "description": "Get the payment methods configured for a specific document.\n\n    REQUIRED PARAMETERS:\n      id_integracion (str): Document ID (varchar 16).\n\n    RETURNS:\n      List of payment method objects: forma_pago, plazo, unidad, valor.\n    ",
+    "inputSchema": {
+      "properties": {
+        "id_integracion": {
+          "title": "Id Integracion",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id_integracion"
+      ],
+      "title": "obtener_formas_pago_documentoArguments",
+      "type": "object"
+    }
+  },
+  "obtener_movimiento_inventario": {
+    "description": "Get an inventory movement by its id_integracion.\n\n    REQUIRED PARAMETERS:\n      id_integracion (str): Inventory movement ID (varchar 16).\n\n    RETURNS:\n      Full movement object with detalles (product_id, cantidad, precio).\n    ",
+    "inputSchema": {
+      "properties": {
+        "id_integracion": {
+          "title": "Id Integracion",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id_integracion"
+      ],
+      "title": "obtener_movimiento_inventarioArguments",
+      "type": "object"
+    }
+  },
+  "obtener_parametros_empresa": {
+    "description": "Retrieve company configuration parameters from Contifico.\n\n    Use this tool to check company settings, enabled features, and defaults\n    before creating documents or persons.\n\n    RETURNS:\n      List of parameter objects with: nombre, tipo, valor.\n    ",
+    "inputSchema": {
+      "properties": {},
+      "title": "obtener_parametros_empresaArguments",
+      "type": "object"
+    }
+  },
+  "obtener_persona": {
+    "description": "Obtiene una persona por su id_integracion (varchar 16).\n\n    Devuelve todos los campos: id, ruc, cedula, razon_social, tipo,\n    es_cliente, es_proveedor, email, telefonos, direccion, etc.\n    ",
+    "inputSchema": {
+      "properties": {
+        "id_integracion": {
+          "title": "Id Integracion",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id_integracion"
+      ],
+      "title": "obtener_personaArguments",
+      "type": "object"
+    }
+  },
+  "obtener_producto": {
+    "description": "Get the full details of a product by its id_integracion.\n\n    REQUIRED PARAMETERS:\n      id_integracion (str): Product ID (varchar 16).\n\n    RETURNS:\n      Full product object including: nombre, codigo, pvp1-4, stock,\n      categoria_id, porcentaje_iva, unidad, etc.\n    ",
+    "inputSchema": {
+      "properties": {
+        "id_integracion": {
+          "title": "Id Integracion",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id_integracion"
+      ],
+      "title": "obtener_productoArguments",
+      "type": "object"
+    }
+  },
+  "obtener_stock_producto": {
+    "description": "Get the stock breakdown by warehouse for a specific product.\n\n    REQUIRED PARAMETERS:\n      id_integracion (str): Product ID (varchar 16).\n\n    RETURNS:\n      List of stock entries per warehouse: bodega_nombre, bodega_id, cantidad.\n    ",
+    "inputSchema": {
+      "properties": {
+        "id_integracion": {
+          "title": "Id Integracion",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id_integracion"
+      ],
+      "title": "obtener_stock_productoArguments",
+      "type": "object"
+    }
+  },
+  "obtener_unidad": {
+    "description": "Get a unit of measure by its id_integracion.\n\n    REQUIRED PARAMETERS:\n      id_integracion (str): Unit ID.\n\n    RETURNS:\n      Unit object with: id_integracion, nombre.\n    ",
+    "inputSchema": {
+      "properties": {
+        "id_integracion": {
+          "title": "Id Integracion",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id_integracion"
+      ],
+      "title": "obtener_unidadArguments",
+      "type": "object"
+    }
+  }
+}

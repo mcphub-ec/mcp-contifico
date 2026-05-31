@@ -7,7 +7,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the application source (all modules server.py imports after the #1 split)
-COPY app.py config.py _http.py server.py stdio_server.py ./
+COPY app.py config.py _http.py server.py stdio_server.py http_server.py ./
 COPY tools/ ./tools/
 
 # Run as a non-root user
@@ -21,5 +21,6 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD python -c "import socket, os; s=socket.create_connection(('localhost', int(os.getenv('MCP_PORT', '8000'))), 5); s.close()" || exit 1
 
-# Run the FastMCP server (transport from MCP_TRANSPORT_MODE, default http_stream)
-CMD ["python", "server.py"]
+# Run the FastMCP server via the HTTP entry point (transport from
+# MCP_TRANSPORT_MODE, default http_stream; port from $PORT, falls back to 8000).
+CMD ["python", "http_server.py"]

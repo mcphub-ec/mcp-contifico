@@ -1,0 +1,20 @@
+# uv project metadata so Alpic's Python builder (uv-based) recognizes this as a
+# valid project. Alpic's default build runs `uv sync` + `uv run main.py`; without
+# a pyproject.toml the container build fails after install. Dependencies mirror
+# requirements.txt (kept in sync; requirements.txt remains for Docker/Fly).
+[project]
+name = "mcp-contifico"
+version = "0.1.0"
+description = "MCP server for the Contifico ERP (Ecuador)."
+requires-python = ">=3.12"
+dependencies = [
+    "mcp==1.27.1",
+    "httpx==0.28.1",
+    "python-dotenv==1.2.2",
+    "uvicorn==0.48.0",
+]
+
+# This is a runnable application, not an installable package — tell uv not to try
+# to build/install the project itself, only its dependencies.
+[tool.uv]
+package = false

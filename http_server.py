@@ -19,7 +19,8 @@ import uvicorn
 
 from server import mcp
 
-if __name__ == "__main__":
+
+def main() -> None:
     # Bind the platform-provided port (Alpic/Fly inject $PORT); fall back to
     # MCP_PORT for back-compat, then 8000.
     port = int(os.getenv("PORT") or os.getenv("MCP_PORT") or "8000")
@@ -34,3 +35,7 @@ if __name__ == "__main__":
     else:
         raise ValueError(f"Unknown transport mode: {transport_mode}")
     uvicorn.run(app, host="0.0.0.0", port=port)
+
+
+if __name__ == "__main__":
+    main()

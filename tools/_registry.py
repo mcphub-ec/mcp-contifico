@@ -109,11 +109,15 @@ async def _dispatch(spec: ToolSpec, args: dict[str, Any]) -> str:
             built["pos"] = args["pos_token"]
         params = built if built else None
     elif spec.mode == "documentos_list":
-        # 'page' is an alias for result_page when it is a digit string.
-        result_page_val = args.get("result_page")
-        page = args.get("page")
-        if page is not None and str(page).isdigit():
-            result_page_val = int(page)
+        # Contífico's /documento/ endpoint paginates on `page` (1-indexed) and
+        # IGNORES `result_page` (verified against the live API: ?page=2 returns a
+        # different set, ?result_page=2 repeats page 1). Accept either arg name
+        # from callers but forward `page` — the param Contífico actually honors.
+        page_val = args.get("page")
+        if page_val is None:
+            page_val = args.get("result_page")
+        if page_val is not None and str(page_val).isdigit():
+            page_val = int(page_val)
         params = {
             "tipo_registro": args["tipo_registro"],
             "tipo": args["tipo"],
@@ -123,7 +127,7 @@ async def _dispatch(spec: ToolSpec, args: dict[str, Any]) -> str:
             "fecha_creacion": args["fecha_creacion"],
             "persona_identificacion": args["persona_identificacion"],
             "result_size": args["result_size"],
-            "result_page": result_page_val,
+            "page": page_val,
             "fecha_inicial": args["fecha_inicial"],
             "fecha_final": args["fecha_final"],
             "persona_id": args["persona_id"],

@@ -39,7 +39,7 @@ HTTP_TIMEOUT = float(os.environ.get("CONTIFICO_HTTP_TIMEOUT", "30"))
 
 mcp = FastMCP(
     "contifico",
-    host=os.getenv("MCP_HOST", "0.0.0.0"),
+    host=os.getenv("MCP_HOST", "0.0.0.0"),  # nosec B104 — configurable via MCP_HOST env
     instructions=(
         "MCP server for Contifico REST API v2 — cloud accounting system for Ecuador. "
         "Manages: people (customers/suppliers/employees), products, documents (invoices, "
@@ -1519,4 +1519,4 @@ if __name__ == "__main__":
         app = mcp.streamable_http_app()
     else:
         raise ValueError(f"Unknown transport mode: {transport_mode}")
-    uvicorn.run(app, host=os.getenv("MCP_HOST", "0.0.0.0"), port=port)
+    uvicorn.run(app, host=os.getenv("MCP_HOST", "0.0.0.0"), port=port)  # nosec B104 — configurable via MCP_HOST env

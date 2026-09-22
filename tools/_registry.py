@@ -191,7 +191,10 @@ def build_tool(spec: ToolSpec):
     ns = dict(_EXEC_GLOBALS)
     ns["__dispatch"] = _dispatch
     ns["__spec"] = spec
-    exec(compile(src, f"<tool:{spec.name}>", "exec"), ns)  # noqa: S102 - trusted, static specs
+    # nosec B102 — `src` is built only from literals in tools/specs.py, a static
+    # in-repo table. No runtime, caller-supplied or network data reaches it: this
+    # runs once at import time, before any request is served. (ruff: S102.)
+    exec(compile(src, f"<tool:{spec.name}>", "exec"), ns)  # noqa: S102 - trusted, static specs  # nosec B102
     fn = ns[spec.name]
     # The docstring above is the repr of the original; restore the exact object
     # (repr round-trips for these plain strings, but assign to be unambiguous).

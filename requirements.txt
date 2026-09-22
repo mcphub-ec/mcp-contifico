@@ -1,4 +1,7 @@
-fastmcp==3.3.1
+# NOTE: FastMCP is provided by the `mcp` SDK (mcp.server.fastmcp). The standalone
+# `fastmcp` package is intentionally NOT listed — it is unused by this server and
+# pulls ~40 extra transitive deps (keyring, SecretStorage/jeepney, opentelemetry,
+# authlib…) that bloat the image and broke the Alpic container build.
 mcp==1.27.1
 httpx==0.28.1
 python-dotenv==1.2.2

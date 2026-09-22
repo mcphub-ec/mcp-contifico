@@ -23,12 +23,18 @@ Parte del ecosistema oficial de [MCP Hub Ecuador](https://github.com/mcphub-ec/h
 
 ## 📦 Instalación y Configuración
 
-### 1\. Variables de Entorno
+### 1\. Autenticación (multi-tenant, por request)
 
-Este servidor es completamente _stateless_. Copia el archivo `.env.example` a `.env` y configura tus datos. **Nunca hagas commit de este archivo.**
+Este servidor es completamente _stateless_ y **multi-tenant**. La API key de Contifico se lee **por cada request** desde la cabecera `Authorization: Bearer <api_key>` de la petición MCP entrante. Cada llamante envía su propia key, por lo que una sola instancia compartida (detrás de un gateway) puede atender a varias cuentas. La key se usa únicamente para esa llamada: **nunca se almacena ni se registra en logs**. Si ninguna key se resuelve, las herramientas devuelven un error claro en lugar de llamar a Contifico.
+
+El token de POS (requerido por las operaciones de escritura) sigue el mismo modelo: se prefiere el parámetro `pos_token` de la herramienta y, en su defecto, la variable `CONTIFICO_POS_TOKEN` (solo desarrollo local).
+
+#### Fallback para desarrollo local
+
+Si no se envía la cabecera `Authorization`, el servidor recurre a la variable de entorno `CONTIFICO_API_KEY`. **Esto es solo para desarrollo local.** Copia `.env.example` a `.env` y configura tus datos. **Nunca hagas commit de este archivo.**
 
 ```env
-CONTIFICO_API_KEY="tu_api_key_aqui"
+CONTIFICO_API_KEY="tu_api_key_aqui"   # solo dev local; en producción usa Authorization: Bearer
 ```
 
 ### 2\. Despliegue con Docker (Recomendado)

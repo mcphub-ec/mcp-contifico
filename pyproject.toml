@@ -18,3 +18,9 @@ dependencies = [
 # to build/install the project itself, only its dependencies.
 [tool.uv]
 package = false
+
+[tool.pytest.ini_options]
+# Standard test suite: schema-lock + security tests.
+# Run with: python3 -m pytest tests/test_security.py tests/test_schema_lock.py
+# Or use the standalone runners: python3 tests/test_security.py
+asyncio_mode = "strict"

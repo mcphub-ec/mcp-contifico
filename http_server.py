@@ -26,15 +26,18 @@ def main() -> None:
     port = int(os.getenv("PORT") or os.getenv("MCP_PORT") or "8000")
     if port <= 0:
         raise ValueError(f"Invalid port {port!r} — set $PORT/$MCP_PORT to a positive integer")
+    # Bind address is configurable (upstream mcphub-wqy): 0.0.0.0 in a container,
+    # 127.0.0.1 for local dev. Keep it in sync with app.py's FastMCP(host=...).
+    host = os.getenv("MCP_HOST", "0.0.0.0")  # nosec B104 — configurable via MCP_HOST env
     transport_mode = os.getenv("MCP_TRANSPORT_MODE", "http_stream").lower()
-    print(f"Starting Contifico MCP server on http://0.0.0.0:{port}/mcp ({transport_mode})")
+    print(f"Starting Contifico MCP server on http://{host}:{port}/mcp ({transport_mode})")
     if transport_mode == "sse":
         app = mcp.sse_app()
     elif transport_mode == "http_stream":
         app = mcp.streamable_http_app()
     else:
         raise ValueError(f"Unknown transport mode: {transport_mode}")
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host=host, port=port)
 
 
 if __name__ == "__main__":
